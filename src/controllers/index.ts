@@ -1,2 +1,7 @@
 import express from "express";
-const router: express.Router = express.Router();
+import authRouter from "./auth";
+const AppRouter: express.Router = express.Router();
+
+AppRouter.use("/auth", authRouter);
+
+export default AppRouter;
