@@ -1,20 +1,20 @@
 import mongoose, { Document, Model } from "mongoose";
 const Schema: any = mongoose.Schema;
 
-export const BooksCollectionsSchema: mongoose.Schema = new Schema(
+export const BooksCurationsSchema: mongoose.Schema = new Schema(
   {
     book: { type: Schema.Types.ObjectId, ref: "Book", required: true },
-    collection: {
+    curation: {
       type: Schema.Types.ObjectId,
-      ref: "Collection",
+      ref: "Curation",
       required: true
     }
   },
   { versionKey: false }
 );
 
-const BooksCollections: Model<Document, {}> = mongoose.model(
-  "BooksCollections",
-  BooksCollectionsSchema
+const BooksCurations: Model<Document, {}> = mongoose.model(
+  "BooksCurations",
+  BooksCurationsSchema
 );
-export default BooksCollections;
+export default BooksCurations;

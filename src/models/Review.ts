@@ -4,7 +4,7 @@ const Schema: any = mongoose.Schema;
 
 export const ReviewSchema: mongoose.Schema = new Schema(
   {
-    author: { type: UserSchema, required: true },
+    author: { type: Schema.Types.ObjectId, required: true },
     contents: { type: String, required: true },
     published: { type: Boolean, required: true },
     thumbnail: { type: String, default: null },

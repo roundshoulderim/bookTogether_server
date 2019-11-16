@@ -1,10 +1,9 @@
 import mongoose, { Document, Model } from "mongoose";
-import { UserSchema } from "./User";
 const Schema: any = mongoose.Schema;
 
-export const CollectionSchema: mongoose.Schema = new Schema(
+export const CurationSchema: mongoose.Schema = new Schema(
   {
-    author: { type: UserSchema, required: true },
+    author: { type: Schema.Types.ObjectId, required: true },
     contents: { type: String, required: true },
     published: { type: Boolean, required: true },
     title: { type: String, required: true }
@@ -12,8 +11,8 @@ export const CollectionSchema: mongoose.Schema = new Schema(
   { versionKey: false }
 );
 
-const Collection: Model<Document, {}> = mongoose.model(
-  "Collection",
-  CollectionSchema
+const Curation: Model<Document, {}> = mongoose.model(
+  "Curation",
+  CurationSchema
 );
-export default Collection;
+export default Curation;
