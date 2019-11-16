@@ -7,17 +7,8 @@
     "ordered-imports": false,
     "no-console": false,
     "object-literal-sort-keys": false,
-    "typedef": [
-      true,
-      "call-signature",
-      "arrow-call-signature",
-      "parameter",
-      "arrow-parameter",
-      "property-declaration",
-      "variable-declaration",
-      "variable-declaration-ignore-function",
-      "member-variable-declaration"
-    ]
+    "no-var-requires": false,
+    "typedef": [true, "call-signature", "property-declaration"]
   },
   "rulesDirectory": []
 }
