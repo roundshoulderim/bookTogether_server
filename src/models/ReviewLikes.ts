@@ -3,8 +3,8 @@ const Schema: any = mongoose.Schema;
 
 export const ReviewLikesSchema: mongoose.Schema = new Schema(
   {
-    user_id: { type: String, required: true },
-    review_id: { type: String, required: true }
+    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    review: { type: Schema.Types.ObjectId, ref: "Review", required: true }
   },
   { versionKey: false }
 );

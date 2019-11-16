@@ -3,8 +3,12 @@ const Schema: any = mongoose.Schema;
 
 export const CollectionLikesSchema: mongoose.Schema = new Schema(
   {
-    user_id: { type: String, required: true },
-    collection_id: { type: String, required: true }
+    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    collection: {
+      type: Schema.Types.ObjectId,
+      ref: "Collection",
+      required: true
+    }
   },
   { versionKey: false }
 );
