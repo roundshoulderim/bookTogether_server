@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import authService from "../services/authService";
-import InvalidBody from "../helpers/invalidBody";
-import InternalError from "../helpers/internalError";
+import InvalidBody from "../helpers/errors/invalidBody";
+import InternalError from "../helpers/errors/internalError";
 
 const authRouter: express.Router = express.Router();
 
