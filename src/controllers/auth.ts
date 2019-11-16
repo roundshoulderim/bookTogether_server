@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import UserService from "../services/userService";
+import authService from "../services/authService";
 import InvalidBody from "../helpers/invalidBody";
 import InternalError from "../helpers/internalError";
 
@@ -12,7 +12,7 @@ authRouter.post("/signup", async (req: Request, res: Response) => {
     return res.status(400).send(InvalidBody);
   }
   try {
-    const signUpRes: any = await UserService.signUp(req.body);
+    const signUpRes: any = await authService.signUp(req.body);
     if (signUpRes.error) {
       res.status(409).send(signUpRes);
     } else {
@@ -30,7 +30,7 @@ authRouter.post("/login", async (req: Request, res: Response) => {
     return res.status(400).send(InvalidBody);
   }
   try {
-    const loginRes: any = await UserService.login(req.body);
+    const loginRes: any = await authService.login(req.body);
     if (loginRes.error) {
       res.status(401).send(loginRes);
     } else {

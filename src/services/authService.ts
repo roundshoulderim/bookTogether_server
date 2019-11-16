@@ -7,7 +7,7 @@ interface IUserInfo {
   password: string;
 }
 
-const UserService: any = {
+const authService: any = {
   signUp: async (userInfo: IUserInfo): Promise<object> => {
     const existing = await User.findOne({ email: userInfo.email });
     if (existing) {
@@ -40,4 +40,4 @@ const UserService: any = {
     return { id: user.id, message: "성공적으로 로그인 되었습니다." };
   }
 };
-export default UserService;
+export default authService;
