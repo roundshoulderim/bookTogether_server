@@ -43,4 +43,15 @@ authRouter.post("/login", async (req: Request, res: Response) => {
   }
 });
 
+// POST /logout
+authRouter.post("/logout", async (req: Request, res: Response) => {
+  req.session.destroy((error: any) => {
+    if (error) {
+      res.status(500).send(InternalError);
+    } else {
+      res.status(200).send({ message: "성공적으로 로그아웃 되었습니다." });
+    }
+  });
+});
+
 export default authRouter;
