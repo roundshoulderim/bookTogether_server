@@ -7,7 +7,12 @@ interface IUserInfo {
   password: string;
 }
 
-const authService: any = {
+interface IAuthService<T = Promise<object>> {
+  signUp: (userInfo: IUserInfo) => T;
+  login: (userInfo: IUserInfo) => T;
+}
+
+const authService: IAuthService = {
   signUp: async (userInfo: IUserInfo): Promise<object> => {
     const existing = await User.findOne({ email: userInfo.email });
     if (existing) {
@@ -31,7 +36,7 @@ const authService: any = {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return {
         error: {
-          status: 400,
+          status: 401,
           type: "LoginFailed",
           message: "입력하신 이메일과 비밀번호가 일치하지 않습니다."
         }
