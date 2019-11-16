@@ -19,6 +19,7 @@ reviewRouter.get("/", async (req: Request, res: Response) => {
           Unauthorized("인증을 한 후에만 해당 서평 목록을 불러올 수 있습니다.")
         );
     }
+    req.query.user_id = req.session.user_id; // add user_id so it can be used to filter
   }
   try {
     const getReviewsRes = await reviewService.getReviews(req.query);
