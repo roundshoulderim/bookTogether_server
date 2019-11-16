@@ -28,6 +28,10 @@ app.use(
 app.use(passport.initialize()); // passport를 app의 미들웨어로 설정
 app.use(AppRouter);
 
-app.listen(process.env.PORT, (): void => {
-  console.log("Listening on port 5000");
-});
+if (process.env.NODE_ENV !== "test") {
+  app.listen(process.env.PORT, (): void => {
+    console.log("Listening on port 5000");
+  });
+}
+
+export default app; // for testing
