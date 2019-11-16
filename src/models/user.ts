@@ -29,5 +29,12 @@ export const UserSchema: mongoose.Schema = new Schema(
   { versionKey: false }
 );
 
+UserSchema.method("toClient", function(): object {
+  const obj = this.toObject();
+  obj.id = obj._id;
+  delete obj._id;
+  return obj;
+});
+
 const User: any = mongoose.model("User", UserSchema);
 export default User;

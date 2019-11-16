@@ -14,5 +14,12 @@ export const ReviewSchema: mongoose.Schema = new Schema(
   { versionKey: false }
 );
 
+ReviewSchema.method("toClient", function(): object {
+  const obj = this.toObject();
+  obj.id = obj._id;
+  delete obj._id;
+  return obj;
+});
+
 const Review: Model<Document, {}> = mongoose.model("Review", ReviewSchema);
 export default Review;

@@ -19,6 +19,13 @@ export const BookSchema: mongoose.Schema = new Schema(
   { versionKey: false }
 );
 
+BookSchema.method("toClient", function(): object {
+  const obj = this.toObject();
+  obj.id = obj._id;
+  delete obj._id;
+  return obj;
+});
+
 // <Document, {}> are value types that can be provided to model constructor (generics)
 const Book: Model<Document, {}> = mongoose.model("Book", BookSchema);
 export default Book;
