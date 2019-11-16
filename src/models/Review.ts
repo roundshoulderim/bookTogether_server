@@ -4,12 +4,12 @@ const Schema: any = mongoose.Schema;
 
 export const ReviewSchema: mongoose.Schema = new Schema(
   {
-    author: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    author: { type: Schema.Types.ObjectId, ref: "User" },
     books: [{ type: Schema.Types.ObjectId, ref: "Book" }],
-    contents: { type: String, required: true },
-    published: { type: Boolean, required: true },
-    thumbnail: { type: String, default: null },
-    title: { type: String, required: true }
+    contents: String,
+    published: Boolean,
+    thumbnail: String,
+    title: String
   },
   { versionKey: false }
 );
