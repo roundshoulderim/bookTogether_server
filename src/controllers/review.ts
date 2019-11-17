@@ -29,4 +29,29 @@ reviewRouter.get("/", async (req: Request, res: Response) => {
   }
 });
 
+reviewRouter.get("/:id", async (req: Request, res: Response) => {
+  try {
+    const getReviewRes: any = await reviewService.getReview(req.params.id);
+    if (!getReviewRes.published && req.session.user_id !== getReviewRes.id) {
+      return res
+        .status(401)
+        .send(Unauthorized("해당 서평에 접근 권한이 없습니다."));
+    }
+    res.status(200).send(getReviewRes);
+  } catch (error) {
+    if (error.name === "CastError") {
+      // not found
+      res.status(404).send({
+        error: {
+          status: 404,
+          type: "ReviewNotFound",
+          message: "해당 서평에 대한 정보를 찾을 수가 없습니다."
+        }
+      });
+    } else {
+      res.status(500).send(InternalError);
+    }
+  }
+});
+
 export default reviewRouter;
