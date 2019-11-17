@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import reviewService from "../services/reviewService";
+import InvalidBody from "../helpers/errors/invalidBody";
 import InvalidQuery from "../helpers/errors/invalidQuery";
 import InternalError from "../helpers/errors/internalError";
 import Unauthorized from "../helpers/errors/unauthorized";
@@ -51,6 +52,59 @@ reviewRouter.get("/:id", async (req: Request, res: Response) => {
     } else {
       res.status(500).send(InternalError);
     }
+  }
+});
+
+reviewRouter.post("/", async (req: Request, res: Response) => {
+  const { books, contents, published, title } = req.body;
+  if (!books || !contents || typeof published !== "boolean" || !title) {
+    return res.status(400).send(InvalidBody);
+  }
+  if (!req.session.user_id) {
+    return res
+      .status(401)
+      .send(Unauthorized("해당 서평에 접근 권한이 없습니다."));
+  }
+  req.body.author = req.session.user_id;
+  try {
+    const postReviewRes = await reviewService.postReview(req.body);
+    res.status(201).send(postReviewRes);
+  } catch (error) {
+    res.status(500).send(InternalError);
+  }
+});
+
+reviewRouter.patch("/:id", async (req: Request, res: Response) => {
+  const { contents, published, title } = req.body;
+  if (!contents || typeof published !== "boolean" || !title) {
+    return res.status(400).send(InvalidBody);
+  }
+  if (!req.session.user_id) {
+    return res
+      .status(401)
+      .send(Unauthorized("해당 서평에 접근 권한이 없습니다."));
+  }
+  req.body.author = req.session.user_id;
+  try {
+    const patchReviewRes = await reviewService.patchReview(
+      req.body,
+      req.params.id
+    );
+    res.status(200).send(patchReviewRes);
+  } catch (error) {
+    if (error.name === "CastError") {
+      return res.status(404).send({
+        error: {
+          status: 404,
+          type: "ReviewNotFound",
+          message: "해당 서평에 대한 정보를 찾을 수가 없습니다."
+        }
+      });
+    }
+    if (error.type === "Unauthorized") {
+      return res.status(401).send(error);
+    }
+    res.status(500).send(InternalError);
   }
 });
 
