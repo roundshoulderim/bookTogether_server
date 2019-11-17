@@ -7,6 +7,7 @@ export const ReviewSchema: mongoose.Schema = new Schema(
     books: [{ type: Schema.Types.ObjectId, ref: "Book" }],
     contents: String,
     published: Boolean,
+    likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
     thumbnail: String,
     title: String
   },

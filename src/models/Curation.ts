@@ -3,9 +3,10 @@ const Schema: any = mongoose.Schema;
 
 export const CurationSchema: mongoose.Schema = new Schema(
   {
-    author: Schema.Types.ObjectId,
+    author: { type: Schema.Types.ObjectId, ref: "User" },
     books: [{ type: Schema.Types.ObjectId, ref: "Book" }],
     contents: String,
+    likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
     published: Boolean,
     reviews: [{ type: Schema.Types.ObjectId, ref: "Review" }],
     title: String
