@@ -10,12 +10,5 @@ export const RatingSchema: mongoose.Schema = new Schema(
   { versionKey: false }
 );
 
-RatingSchema.method("toClient", function(): object {
-  const obj = this.toObject();
-  obj.id = obj._id;
-  delete obj._id;
-  return obj;
-});
-
 const Rating: Model<Document, {}> = mongoose.model("Rating", RatingSchema);
 export default Rating;

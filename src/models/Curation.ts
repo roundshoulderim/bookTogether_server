@@ -13,13 +13,6 @@ export const CurationSchema: mongoose.Schema = new Schema(
   { versionKey: false }
 );
 
-CurationSchema.method("toClient", function(): object {
-  const obj = this.toObject();
-  obj.id = obj._id;
-  delete obj._id;
-  return obj;
-});
-
 const Curation: Model<Document, {}> = mongoose.model(
   "Curation",
   CurationSchema

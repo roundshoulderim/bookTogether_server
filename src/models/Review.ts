@@ -1,5 +1,4 @@
 import mongoose, { Document, Model } from "mongoose";
-import { UserSchema } from "./User";
 const Schema: any = mongoose.Schema;
 
 export const ReviewSchema: mongoose.Schema = new Schema(
