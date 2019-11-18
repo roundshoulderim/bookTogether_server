@@ -14,6 +14,7 @@ interface IReview extends Document {
   author: string;
   books: string[];
   contents: string;
+  likes: string[];
   published: boolean;
   thumbnail: string;
   title: string;
@@ -82,6 +83,13 @@ const reviewService = {
 
   patchReview: async (patchBody: IReview, id: string) => {
     const review = await Review.findById(id);
+    if (!review) {
+      return Promise.reject({
+        status: 404,
+        type: "ReviewNotFound",
+        message: "해당 서평에 대한 정보를 찾지 못했습니다."
+      });
+    }
     if ((review as IReview).author !== patchBody.author) {
       return Promise.reject(Unauthorized("해당 서평에 접근 권한이 없습니다."));
     }
@@ -93,6 +101,47 @@ const reviewService = {
       })
       .select("-books");
     return updatedReview;
+  },
+
+  postLike: async (review_id: string, user_id: string) => {
+    const review = await Review.findById(review_id);
+    if (!review) {
+      return Promise.reject({
+        status: 404,
+        type: "ReviewNotFound",
+        message: "해당 서평에 대한 정보를 찾지 못했습니다."
+      });
+    }
+    if ((review as IReview).likes.includes(user_id)) {
+      return Promise.reject({
+        status: 409,
+        type: "DuplicateLike",
+        message: "이미 좋아요를 한 서평입니다."
+      });
+    }
+    (review as IReview).likes.push(user_id);
+    await review.save();
+  },
+
+  deleteLike: async (review_id: string, user_id: string) => {
+    const review: IReview = (await Review.findById(review_id)) as IReview;
+    if (!review) {
+      return Promise.reject({
+        status: 404,
+        type: "ReviewNotFound",
+        message: "해당 서평에 대한 정보를 찾지 못했습니다."
+      });
+    }
+    const index = review.likes.indexOf(user_id);
+    if (index === -1) {
+      return Promise.reject({
+        status: 404,
+        type: "LikeNotFound",
+        message: "해당 좋아요에 대한 정보를 찾지 못했습니다."
+      });
+    }
+    review.likes.splice(index, 1);
+    await review.save();
   }
 };
 
