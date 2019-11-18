@@ -1,4 +1,5 @@
-import mongoose, { Document, Model } from "mongoose";
+import mongoose from "mongoose";
+import mongoosePaginate from "mongoose-paginate-v2";
 const Schema: any = mongoose.Schema;
 
 // Required fields: will be denormalized and referenced directly by other collections
@@ -19,6 +20,7 @@ export const BookSchema: mongoose.Schema = new Schema(
   { versionKey: false }
 );
 
-// <Document, {}> are value types that can be provided to model constructor (generics)
-const Book: Model<Document, {}> = mongoose.model("Book", BookSchema);
+BookSchema.plugin(mongoosePaginate); // add pagination method
+
+const Book: mongoose.PaginateModel<any> = mongoose.model("Book", BookSchema);
 export default Book;

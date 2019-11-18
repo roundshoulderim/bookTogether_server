@@ -8,6 +8,12 @@ interface IQuery {
   review_id: string;
 }
 
+interface ISearchQuery {
+  query: string;
+  size: number;
+  page: number;
+}
+
 const bookService = {
   getBooks: async (query: IQuery) => {
     let books: Document[];
@@ -38,6 +44,29 @@ const bookService = {
 
   getBook: async (id: string) => {
     return await Book.findById(id);
+  },
+
+  searchBooks: async ({ query, size, page }: ISearchQuery) => {
+    size = size ? size : 20;
+    page = page ? page : 1;
+    const options = {
+      page,
+      limit: size,
+      select: "authors contents thumbnail title"
+    };
+    const { docs, totalDocs, hasNextPage, totalPages } = await Book.paginate(
+      {
+        title: { $regex: new RegExp(query, "i") }
+      },
+      options
+    );
+    return {
+      results_count: totalDocs,
+      pageable_count: totalPages,
+      current_page: page,
+      is_end: !hasNextPage,
+      books: docs
+    };
   }
 };
 
