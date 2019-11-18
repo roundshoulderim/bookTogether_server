@@ -104,17 +104,66 @@ reviewRouter.patch("/:id", async (req: Request, res: Response) => {
     );
     res.status(200).send(patchReviewRes);
   } catch (error) {
-    if (error.name === "CastError") {
-      return res.status(404).send({
-        error: {
-          status: 404,
-          type: "ReviewNotFound",
-          message: "해당 서평에 대한 정보를 찾을 수가 없습니다."
-        }
-      });
+    if (error.name === "CastError" || error.type === "ReviewNotFound") {
+      return res
+        .status(404)
+        .send(
+          NotFound(
+            "ReviewNotFound",
+            "해당 서평에 대한 정보를 찾을 수가 없습니다."
+          )
+        );
     }
     if (error.type === "Unauthorized") {
       return res.status(401).send(error);
+    }
+    res.status(500).send(InternalError);
+  }
+});
+
+reviewRouter.post("/:id/likes", async (req: Request, res: Response) => {
+  if (!req.session.user_id) {
+    return res
+      .status(401)
+      .send(Unauthorized("로그인 한 후 좋아요를 누를 수 있습니다."));
+  }
+  try {
+    await reviewService.postLike(req.params.id, req.session.user_id);
+    res
+      .status(201)
+      .send({ user_id: req.session.user_id, review_id: req.params.id });
+  } catch (error) {
+    if (error.name === "CastError" || error.type === "ReviewNotFound") {
+      return res
+        .status(404)
+        .send(
+          NotFound("ReviewNotFound", "해당 서평에 대한 정보를 찾지 못했습니다.")
+        );
+    } else if (error.type === "DuplicateLike") {
+      return res.status(409).send({ error });
+    }
+    res.status(500).send(InternalError);
+  }
+});
+
+reviewRouter.delete("/:id/likes", async (req: Request, res: Response) => {
+  if (!req.session.user_id) {
+    return res
+      .status(401)
+      .send(Unauthorized("해당 좋아요를 취소할 수 없습니다."));
+  }
+  try {
+    await reviewService.deleteLike(req.params.id, req.session.user_id);
+    res.sendStatus(204);
+  } catch (error) {
+    if (error.name === "CastError" || error.type === "ReviewNotFound") {
+      return res
+        .status(404)
+        .send(
+          NotFound("ReviewNotFound", "해당 서평에 대한 정보를 찾지 못했습니다.")
+        );
+    } else if (error.type === "LikeNotFound") {
+      return res.status(404).send({ error });
     }
     res.status(500).send(InternalError);
   }
