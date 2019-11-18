@@ -1,7 +1,8 @@
-import { Document } from "mongoose";
+import { Document, DocumentQuery } from "mongoose";
 import Curation from "../models/Curation";
 import Review from "../models/Review";
 import Unauthorized from "../helpers/errors/unauthorized";
+import updateQueryResults from "../helpers/query/updateQueryResults";
 
 interface IQuery {
   book_id: string;
@@ -24,39 +25,51 @@ const reviewService = {
   getReviews: async (query: IQuery) => {
     let reviews: Document[];
     const { book_id, curation_id, list_type, user_id } = query;
-    // Update reviews array each time to take the intersection of all queries
-    function updateReviews(reviewArr: Document[]): void {
-      if (!reviews) {
-        reviews = reviewArr;
-      } else {
-        reviews = reviews.filter((a: Document) => {
-          return reviewArr.some((b: Document) => b.id === a.id);
-        });
-      }
+
+    function findMatchingReviews(
+      condition: object
+    ): DocumentQuery<Document[], Document, {}> {
+      return Review.find(condition)
+        .populate({ path: "author", select: "image name profile" })
+        .select("-book");
     }
+
     if (list_type) {
       if (list_type === "recommended") {
         // Get 20 reviews with most likes
-        const allReviews = await Review.find().select("-books");
+        const allReviews = await findMatchingReviews({});
         allReviews.sort((a: any, b: any) => b.likes.length - a.likes.length);
-        updateReviews(allReviews.slice(0, 20));
+        reviews = updateQueryResults(reviews, allReviews.slice(0, 20));
       } else if (list_type === "my_likes") {
-        updateReviews(await Review.find({ likes: user_id }).select("-books"));
+        reviews = updateQueryResults(
+          reviews,
+          await findMatchingReviews({ likes: user_id })
+        );
       } else if (list_type === "personal") {
-        updateReviews(await Review.find({ author: user_id }).select("-books"));
+        reviews = updateQueryResults(
+          reviews,
+          await findMatchingReviews({ author: user_id })
+        );
       }
     }
     if (book_id) {
       // Get all reviews about a specific book
-      updateReviews(await Review.find({ books: book_id }).select("-books"));
+      reviews = updateQueryResults(
+        reviews,
+        await findMatchingReviews({ books: book_id })
+      );
     }
     if (curation_id) {
       // Get reviews that are contained in a specific curation
       const curation: any = await Curation.findById(curation_id).populate({
         path: "reviews",
-        select: "-books"
+        select: "-books",
+        populate: {
+          path: "author",
+          select: "image name profile"
+        }
       });
-      updateReviews(curation.reviews);
+      reviews = updateQueryResults(reviews, curation.reviews);
     }
     return reviews;
   },
