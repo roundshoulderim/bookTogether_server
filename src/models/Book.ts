@@ -4,15 +4,15 @@ const Schema: any = mongoose.Schema;
 // Required fields: will be denormalized and referenced directly by other collections
 export const BookSchema: mongoose.Schema = new Schema(
   {
-    authors: { type: [String], required: true },
+    authors: [String],
     contents: String,
     datetime: Date,
     isbn: String,
     price: Number,
     publisher: String,
     sale_price: Number,
-    thumbnail: { type: String, required: true },
-    title: { type: String, required: true },
+    thumbnail: String,
+    title: String,
     translators: [String],
     url: String
   },

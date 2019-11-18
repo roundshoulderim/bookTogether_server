@@ -3,9 +3,9 @@ const Schema: any = mongoose.Schema;
 
 export const RatingSchema: mongoose.Schema = new Schema(
   {
-    user_id: { type: String, required: true },
-    book_id: { type: String, required: true },
-    rating: { type: Number, required: true }
+    user: { type: Schema.Types.ObjectId, ref: "User" },
+    book: { type: Schema.Types.ObjectId, ref: "Book" },
+    rating: { type: Number }
   },
   { versionKey: false }
 );
