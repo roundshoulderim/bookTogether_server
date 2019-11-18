@@ -91,7 +91,6 @@ reviewRouter.patch("/:id", async (req: Request, res: Response) => {
   if (!contents || typeof published !== "boolean" || !title) {
     return res.status(400).send(InvalidBody);
   }
-  req.session.user_id = "5dd18e2078a28839895bb3ea";
   if (!req.session.user_id) {
     return res
       .status(401)
