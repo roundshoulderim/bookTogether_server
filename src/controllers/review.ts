@@ -3,6 +3,7 @@ import reviewService from "../services/reviewService";
 import InvalidBody from "../helpers/errors/invalidBody";
 import InvalidQuery from "../helpers/errors/invalidQuery";
 import InternalError from "../helpers/errors/internalError";
+import NotFound from "../helpers/errors/notFound";
 import Unauthorized from "../helpers/errors/unauthorized";
 
 const reviewRouter: express.Router = express.Router();
@@ -38,17 +39,28 @@ reviewRouter.get("/:id", async (req: Request, res: Response) => {
         .status(401)
         .send(Unauthorized("해당 서평에 접근 권한이 없습니다."));
     }
-    res.status(200).send(getReviewRes);
+    if (!getReviewRes) {
+      res
+        .status(404)
+        .send(
+          NotFound(
+            "ReviewNotFound",
+            "해당 서평에 대한 정보를 찾을 수가 없습니다."
+          )
+        );
+    } else {
+      res.status(200).send(getReviewRes);
+    }
   } catch (error) {
     if (error.name === "CastError") {
-      // not found
-      res.status(404).send({
-        error: {
-          status: 404,
-          type: "ReviewNotFound",
-          message: "해당 서평에 대한 정보를 찾을 수가 없습니다."
-        }
-      });
+      res
+        .status(404)
+        .send(
+          NotFound(
+            "ReviewNotFound",
+            "해당 서평에 대한 정보를 찾을 수가 없습니다."
+          )
+        );
     } else {
       res.status(500).send(InternalError);
     }
