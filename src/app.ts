@@ -8,7 +8,12 @@ import session from "express-session";
 import AppRouter from "./controllers";
 
 dotenv.config();
-mongoose.connect("mongodb://localhost/bcha-server", {
+
+const dbUrl: string =
+  process.env.NODE_ENV === "test"
+    ? "mongodb://localhost/test-server"
+    : "mongodb://localhost/bcha-server";
+mongoose.connect(dbUrl, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
