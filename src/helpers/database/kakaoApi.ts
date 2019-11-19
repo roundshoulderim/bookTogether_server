@@ -20,20 +20,23 @@ function handleTitle(title: string): string {
   let newTitle = "";
   let shouldInclude = true;
   for (const letter of title) {
+    if (letter === "(" && shouldInclude) {
+      shouldInclude = false;
+    }
     if (shouldInclude) {
       newTitle += letter;
     }
-    if (letter === "(" && shouldInclude) {
-      shouldInclude = false;
-    } else if (letter === ")" && shouldInclude) {
+    if (letter === ")" && !shouldInclude) {
       shouldInclude = true;
     }
   }
   return newTitle;
 }
 
-async function searchApi(publisher: string): Promise<void> {
-  const url = `${BASE_URL}?target=publisher&query=${encodeURI(publisher)}`;
+async function searchApi(publisher: string, page: number): Promise<void> {
+  const url = `${BASE_URL}?target=publisher&query=${encodeURI(
+    publisher
+  )}&size=50&page=${page}`;
   try {
     const response = await axios.get(url, {
       headers: {
@@ -44,32 +47,78 @@ async function searchApi(publisher: string): Promise<void> {
     const books = data.documents;
 
     for (const entry of books) {
+      const title = entry.title;
+      if (
+        title.includes("찬송가") ||
+        title.includes("성경") ||
+        title.includes("월호")
+      ) {
+        continue;
+      }
       const browser = await puppeteer.launch();
-      const page = await browser.newPage();
-      const html = await page.goto(entry.url).then(() => page.content());
+      const browserPage = await browser.newPage();
+      const html = await browserPage
+        .goto(entry.url)
+        .then(() => browserPage.content());
       const $ = cheerio.load(html);
-      entry.contents = $("p.desc")
-        .first()
-        .text(); // 크롤링 (현재는 필요 이상의 텍스트를 가져옴)
+      const elDesc = $("p.desc").get(0);
+      if (!elDesc.parent.attribs.class.includes("hide")) {
+        let description = "";
+        elDesc.children.forEach((textNode: any) => {
+          const text = textNode.data === undefined ? "\n" : textNode.data;
+          description += text;
+        });
+        entry.contents = description.trim();
+      }
       entry.title = handleTitle(entry.title);
       const existing = await Book.findOne({ isbn: entry.isbn });
       if (existing) {
-        existing.updateOne(entry);
+        await Book.findByIdAndUpdate(existing.id, entry);
       } else {
         const book: Document = new Book(entry);
         book.save();
       }
+    }
+
+    if (!data.meta.is_end) {
+      searchApi(publisher, page + 1);
     }
   } catch (error) {
     console.log(error);
   }
 }
 
-// Connect to database
+// Connect to database and fetch
 const dbUrl: string = "mongodb://localhost/bcha-server";
+const publishers = [
+  "위즈덤하우스",
+  "시공사",
+  "문학동네",
+  "김영사",
+  "창비",
+  "웅진씽크빅",
+  "길벗",
+  "민음사",
+  "알에이치코리아",
+  "다산북스",
+  "학지사",
+  "아가페출판사",
+  "비룡소",
+  "한빛미디어",
+  "박영사",
+  "쌤앤파커스",
+  "계림북스",
+  "을유문화사",
+  "자음과모음",
+  "개암나무"
+];
 mongoose
   .connect(dbUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true
   })
-  .then(() => searchApi("위즈덤하우스"));
+  .then(() => {
+    publishers.forEach((publisher: string) => {
+      searchApi(publisher, 1);
+    });
+  });

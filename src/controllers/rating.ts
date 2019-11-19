@@ -12,7 +12,6 @@ ratingRouter.get("/", async (req: Request, res: Response) => {
   if (!book_ids) {
     return res.status(400).send(InvalidQuery);
   }
-  req.session.user_id = "5dd18e2078a28839895bb3ea";
   if (!user_id && req.session.user_id) {
     req.query.user_id = req.session.user_id;
   }
@@ -29,7 +28,6 @@ ratingRouter.post("/", async (req: Request, res: Response) => {
   if (!book_id || !rating) {
     return res.status(400).send(InvalidBody);
   }
-  req.session.user_id = "5dd18e2078a28839895bb3ea";
   if (!req.session.user_id) {
     return res
       .status(401)
