@@ -113,12 +113,12 @@ const publishers = [
   "개암나무"
 ];
 mongoose
-  .connect(dbUrl, {
+  .connect(process.env.DB_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true
   })
   .then(() => {
     publishers.forEach((publisher: string) => {
-      searchApi(process.env.DB_URL, 1);
+      searchApi(publisher, 1);
     });
   });
