@@ -60,6 +60,7 @@ async function searchApi(publisher: string, page: number): Promise<void> {
       const html = await browserPage
         .goto(entry.url)
         .then(() => browserPage.content());
+      browser.close();
       const $ = cheerio.load(html);
       const elDesc = $("p.desc").get(0);
       if (!elDesc.parent.attribs.class.includes("hide")) {
@@ -81,7 +82,7 @@ async function searchApi(publisher: string, page: number): Promise<void> {
     }
 
     if (!data.meta.is_end) {
-      searchApi(publisher, page + 1);
+      await searchApi(publisher, page + 1);
     }
   } catch (error) {
     console.log(error);
@@ -89,8 +90,7 @@ async function searchApi(publisher: string, page: number): Promise<void> {
 }
 
 // Connect to database and fetch
-const dbUrl: string = "mongodb://localhost/bcha-server";
-const publishers = [
+const publishers: string[] = [
   "위즈덤하우스",
   "시공사",
   "문학동네",
@@ -114,11 +114,11 @@ const publishers = [
 ];
 mongoose
   .connect(process.env.DB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+    useNewUrlParser: true
   })
-  .then(() => {
-    publishers.forEach((publisher: string) => {
-      searchApi(publisher, 1);
-    });
-  });
+  .then(async () => {
+    for (const publisher of publishers) {
+      await searchApi(publisher, 1);
+    }
+  })
+  .catch(err => console.log(err));
