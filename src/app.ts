@@ -11,8 +11,8 @@ dotenv.config();
 
 const dbUrl: string =
   process.env.NODE_ENV === "test"
-    ? "mongodb://localhost/test-server"
-    : "mongodb://localhost/bcha-server";
+    ? process.env.TEST_DB_URL
+    : process.env.DB_URL;
 mongoose.connect(dbUrl, {
   useNewUrlParser: true,
   useUnifiedTopology: true
