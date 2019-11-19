@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Model, Document } from "mongoose";
 const Schema: any = mongoose.Schema;
 
 export const UserSchema: mongoose.Schema = new Schema(
@@ -29,5 +29,5 @@ export const UserSchema: mongoose.Schema = new Schema(
   { versionKey: false }
 );
 
-const User: any = mongoose.model("User", UserSchema);
+const User: Model<Document, {}> = mongoose.model("User", UserSchema);
 export default User;
