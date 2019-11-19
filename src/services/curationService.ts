@@ -1,7 +1,6 @@
 import { Document, DocumentQuery } from "mongoose";
 import Curation from "../models/Curation";
 import updateQueryResults from "../helpers/query/updateQueryResults";
-import Unauthorized from "../helpers/errors/unauthorized";
 
 interface IQuery {
   book_id: string;
