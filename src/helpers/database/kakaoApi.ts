@@ -119,6 +119,6 @@ mongoose
   })
   .then(() => {
     publishers.forEach((publisher: string) => {
-      searchApi(publisher, 1);
+      searchApi(process.env.DB_URL, 1);
     });
   });
