@@ -1,4 +1,4 @@
-import app from "../../app";
+import app from "../../../app";
 import bcrypt from "bcrypt";
 import Book from "../../models/Book";
 import Curation from "../../models/Curation";

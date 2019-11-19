@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import morgan from "morgan";
 import passport from "passport";
 import session from "express-session";
-import AppRouter from "./controllers";
+import AppRouter from "./src/controllers";
 
 dotenv.config();
 
