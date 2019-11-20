@@ -11,6 +11,7 @@ export const UserSchema: mongoose.Schema = new Schema(
     to_read: [{ book: { type: Schema.Types.ObjectId, ref: "Book" } }],
     reading: [
       {
+        _id: false,
         book: { type: Schema.Types.ObjectId, ref: "Book" },
         start: Date,
         goal: Date
@@ -18,6 +19,7 @@ export const UserSchema: mongoose.Schema = new Schema(
     ],
     finished: [
       {
+        _id: false,
         book: { type: Schema.Types.ObjectId, ref: "Book" },
         start: Date,
         end: Date
