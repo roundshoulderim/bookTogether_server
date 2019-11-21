@@ -9,19 +9,19 @@ import Unauthorized from "../helpers/errors/unauthorized";
 const reviewRouter: express.Router = express.Router();
 
 reviewRouter.get("/", async (req: Request, res: Response) => {
-  const { list_type, book_id, curation_id } = req.query;
-  if (!list_type && !book_id && !curation_id) {
+  const { list_type, book, curation } = req.query;
+  if (!list_type && !book && !curation) {
     return res.status(400).send(InvalidQuery);
   }
   if (list_type === "personal" || list_type === "my_likes") {
-    if (!req.session.user_id) {
+    if (!req.session.user) {
       return res
         .status(401)
         .send(
           Unauthorized("인증을 한 후에만 해당 서평 목록을 불러올 수 있습니다.")
         );
     }
-    req.query.user_id = req.session.user_id; // add user_id so it can be used to filter
+    req.query.user = req.session.user; // add user so it can be used to filter
   }
   try {
     const getReviewsRes = await reviewService.getReviews(req.query);
@@ -34,7 +34,7 @@ reviewRouter.get("/", async (req: Request, res: Response) => {
 reviewRouter.get("/:id", async (req: Request, res: Response) => {
   try {
     const getReviewRes: any = await reviewService.getReview(req.params.id);
-    if (!getReviewRes.published && req.session.user_id !== getReviewRes.id) {
+    if (!getReviewRes.published && req.session.user !== getReviewRes.id) {
       return res
         .status(401)
         .send(Unauthorized("해당 서평에 접근 권한이 없습니다."));
@@ -72,12 +72,12 @@ reviewRouter.post("/", async (req: Request, res: Response) => {
   if (!books || !contents || typeof published !== "boolean" || !title) {
     return res.status(400).send(InvalidBody);
   }
-  if (!req.session.user_id) {
+  if (!req.session.user) {
     return res
       .status(401)
       .send(Unauthorized("해당 서평에 접근 권한이 없습니다."));
   }
-  req.body.author = req.session.user_id;
+  req.body.author = req.session.user;
   try {
     const postReviewRes = await reviewService.postReview(req.body);
     res.status(201).send(postReviewRes);
@@ -91,12 +91,12 @@ reviewRouter.patch("/:id", async (req: Request, res: Response) => {
   if (!contents || typeof published !== "boolean" || !title) {
     return res.status(400).send(InvalidBody);
   }
-  if (!req.session.user_id) {
+  if (!req.session.user) {
     return res
       .status(401)
       .send(Unauthorized("해당 서평에 접근 권한이 없습니다."));
   }
-  req.body.author = req.session.user_id;
+  req.body.author = req.session.user;
   try {
     const patchReviewRes = await reviewService.patchReview(
       req.body,
@@ -122,16 +122,14 @@ reviewRouter.patch("/:id", async (req: Request, res: Response) => {
 });
 
 reviewRouter.post("/:id/likes", async (req: Request, res: Response) => {
-  if (!req.session.user_id) {
+  if (!req.session.user) {
     return res
       .status(401)
       .send(Unauthorized("로그인 한 후 좋아요를 누를 수 있습니다."));
   }
   try {
-    await reviewService.postLike(req.params.id, req.session.user_id);
-    res
-      .status(201)
-      .send({ user_id: req.session.user_id, review_id: req.params.id });
+    await reviewService.postLike(req.params.id, req.session.user);
+    res.status(201).send({ user: req.session.user, review: req.params.id });
   } catch (error) {
     if (error.name === "CastError" || error.type === "ReviewNotFound") {
       return res
@@ -147,13 +145,13 @@ reviewRouter.post("/:id/likes", async (req: Request, res: Response) => {
 });
 
 reviewRouter.delete("/:id/likes", async (req: Request, res: Response) => {
-  if (!req.session.user_id) {
+  if (!req.session.user) {
     return res
       .status(401)
       .send(Unauthorized("해당 좋아요를 취소할 수 없습니다."));
   }
   try {
-    await reviewService.deleteLike(req.params.id, req.session.user_id);
+    await reviewService.deleteLike(req.params.id, req.session.user);
     res.sendStatus(204);
   } catch (error) {
     if (error.name === "CastError" || error.type === "ReviewNotFound") {

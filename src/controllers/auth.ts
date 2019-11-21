@@ -34,7 +34,7 @@ authRouter.post("/login", async (req: Request, res: Response) => {
     if (loginRes.error) {
       res.status(401).send(loginRes);
     } else {
-      req.session.user_id = loginRes.id;
+      req.session.user = loginRes.id;
       delete loginRes.id; // Only send back the message portion
       res.status(200).send(loginRes);
     }

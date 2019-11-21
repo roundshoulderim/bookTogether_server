@@ -5,8 +5,8 @@ import Review from "../models/Review";
 import updateQueryResults from "../helpers/query/updateQueryResults";
 
 interface IQuery {
-  curation_id: string;
-  review_id: string;
+  curation: string;
+  review: string;
 }
 
 interface ISearchQuery {
@@ -18,17 +18,17 @@ interface ISearchQuery {
 const bookService = {
   getBooks: async (query: IQuery) => {
     let books: Document[];
-    const { curation_id, review_id } = query;
+    const { curation, review } = query;
 
-    if (review_id) {
-      const review: any = await Review.findById(review_id).populate("books");
-      books = updateQueryResults(books, review.books);
+    if (review) {
+      const reviewDoc: any = await Review.findById(review).populate("books");
+      books = updateQueryResults(books, reviewDoc.books);
     }
-    if (curation_id) {
-      const curation: any = await Curation.findById(curation_id).populate(
+    if (curation) {
+      const curationDoc: any = await Curation.findById(curation).populate(
         "books"
       );
-      books = updateQueryResults(books, curation.books);
+      books = updateQueryResults(books, curationDoc.books);
     }
     return books;
   },

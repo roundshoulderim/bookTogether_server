@@ -2,8 +2,8 @@ import { Document } from "mongoose";
 import Rating from "../models/Rating";
 
 interface IQuery {
-  book_ids: string[];
-  user_id: string;
+  books: string[];
+  user: string;
 }
 
 interface IRating extends Document {
@@ -15,13 +15,13 @@ interface IRating extends Document {
 const ratingService = {
   getRatings: async (query: IQuery) => {
     const returnArr = [];
-    const { book_ids, user_id } = query;
-    for (const id of book_ids) {
-      const filter = { book: id, user: user_id };
-      const userRating = user_id
+    const { books, user } = query;
+    for (const book of books) {
+      const filter = { book, user };
+      const userRating = user
         ? await Rating.findOne(filter).select("rating")
         : null;
-      const ratings = await Rating.find({ book: id });
+      const ratings = await Rating.find({ book });
       if (ratings.length === 0) {
         continue; // Do not add specified book to array
       }
@@ -30,7 +30,7 @@ const ratingService = {
           return document.rating + sum;
         }, 0) / ratings.length;
       returnArr.push({
-        book: id,
+        book,
         avg_rating: avgRating,
         user_rating: userRating
       });

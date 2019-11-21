@@ -3,10 +3,10 @@ import Curation from "../models/Curation";
 import updateQueryResults from "../helpers/query/updateQueryResults";
 
 interface IQuery {
-  book_id: string;
+  book: string;
   list_type: string;
-  review_id: string;
-  user_id: string;
+  review: string;
+  user: string;
 }
 
 interface ICuration extends Document {
@@ -22,7 +22,7 @@ interface ICuration extends Document {
 const curationService = {
   getCurations: async (query: IQuery) => {
     let curations: Document[];
-    const { book_id, list_type, review_id, user_id } = query;
+    const { book, list_type, review, user } = query;
 
     function findMatchingCurations(
       condition: object
@@ -41,27 +41,27 @@ const curationService = {
       } else if (list_type === "my_likes") {
         curations = updateQueryResults(
           curations,
-          await findMatchingCurations({ likes: user_id })
+          await findMatchingCurations({ likes: user })
         );
       } else if (list_type === "personal") {
         curations = updateQueryResults(
           curations,
-          await findMatchingCurations({ author: user_id })
+          await findMatchingCurations({ author: user })
         );
       }
     }
-    if (book_id) {
+    if (book) {
       // Get curations that contain a specific book
       curations = updateQueryResults(
         curations,
-        await findMatchingCurations({ books: book_id })
+        await findMatchingCurations({ books: book })
       );
     }
-    if (review_id) {
+    if (review) {
       // Get curations that contain a specific review
       curations = updateQueryResults(
         curations,
-        await findMatchingCurations({ reviews: review_id })
+        await findMatchingCurations({ reviews: review })
       );
     }
     return curations;

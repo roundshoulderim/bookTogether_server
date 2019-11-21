@@ -21,8 +21,8 @@ bookRouter.get("/search", async (req: Request, res: Response) => {
 });
 
 bookRouter.get("/", async (req: Request, res: Response) => {
-  const { review_id, curation_id } = req.query;
-  if (!review_id && !curation_id) {
+  const { review, curation } = req.query;
+  if (!review && !curation) {
     return res.status(400).send(InvalidQuery);
   }
   try {
