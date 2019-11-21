@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 
 export default function authorizationCheck(message: string): any {
   return (req: Request, res: Response, next: NextFunction): any => {
-    if (req.session.user_id) {
+    if (req.session.user) {
       return next();
     }
     return res

@@ -8,12 +8,12 @@ import Unauthorized from "../helpers/errors/unauthorized";
 const ratingRouter: express.Router = express.Router();
 
 ratingRouter.get("/", async (req: Request, res: Response) => {
-  const { book_ids, user_id } = req.query;
-  if (!book_ids) {
+  const { books, user } = req.query;
+  if (!books) {
     return res.status(400).send(InvalidQuery);
   }
-  if (!user_id && req.session.user_id) {
-    req.query.user_id = req.session.user_id;
+  if (!user && req.session.user) {
+    req.query.user = req.session.user;
   }
   try {
     const getRatingsRes = await ratingService.getRatings(req.query);
@@ -24,16 +24,16 @@ ratingRouter.get("/", async (req: Request, res: Response) => {
 });
 
 ratingRouter.post("/", async (req: Request, res: Response) => {
-  const { book_id, rating } = req.body;
-  if (!book_id || !rating) {
+  const { book, rating } = req.body;
+  if (!book || !rating) {
     return res.status(400).send(InvalidBody);
   }
-  if (!req.session.user_id) {
+  if (!req.session.user) {
     return res
       .status(401)
       .send(Unauthorized("로그인 한 후 평점을 매길 수 있습니다."));
   }
-  const postBody = { book: book_id, user: req.session.user_id, rating };
+  const postBody = { book, user: req.session.user, rating };
   try {
     const postRatingRes = await ratingService.postRating(postBody);
     return res.status(201).send(postRatingRes);

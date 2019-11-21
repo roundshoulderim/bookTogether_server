@@ -5,10 +5,10 @@ import Unauthorized from "../helpers/errors/unauthorized";
 import updateQueryResults from "../helpers/query/updateQueryResults";
 
 interface IQuery {
-  book_id: string;
-  curation_id: string;
+  book: string;
+  curation: string;
   list_type: string;
-  user_id: string;
+  user: string;
 }
 
 interface IReview extends Document {
@@ -24,7 +24,7 @@ interface IReview extends Document {
 const reviewService = {
   getReviews: async (query: IQuery) => {
     let reviews: Document[];
-    const { book_id, curation_id, list_type, user_id } = query;
+    const { book, curation, list_type, user } = query;
 
     function findMatchingReviews(
       condition: object
@@ -43,25 +43,25 @@ const reviewService = {
       } else if (list_type === "my_likes") {
         reviews = updateQueryResults(
           reviews,
-          await findMatchingReviews({ likes: user_id })
+          await findMatchingReviews({ likes: user })
         );
       } else if (list_type === "personal") {
         reviews = updateQueryResults(
           reviews,
-          await findMatchingReviews({ author: user_id })
+          await findMatchingReviews({ author: user })
         );
       }
     }
-    if (book_id) {
+    if (book) {
       // Get all reviews about a specific book
       reviews = updateQueryResults(
         reviews,
-        await findMatchingReviews({ books: book_id })
+        await findMatchingReviews({ books: book })
       );
     }
-    if (curation_id) {
+    if (curation) {
       // Get reviews that are contained in a specific curation
-      const curation: any = await Curation.findById(curation_id).populate({
+      const curationDoc: any = await Curation.findById(curation).populate({
         path: "reviews",
         select: "-books",
         populate: {
@@ -69,7 +69,7 @@ const reviewService = {
           select: "image name profile"
         }
       });
-      reviews = updateQueryResults(reviews, curation.reviews);
+      reviews = updateQueryResults(reviews, curationDoc.reviews);
     }
     return reviews;
   },
@@ -116,36 +116,36 @@ const reviewService = {
     return updatedReview;
   },
 
-  postLike: async (review_id: string, user_id: string) => {
-    const review = await Review.findById(review_id);
-    if (!review) {
+  postLike: async (review: string, user: string) => {
+    const reviewDoc = await Review.findById(review);
+    if (!reviewDoc) {
       return Promise.reject({
         status: 404,
         type: "ReviewNotFound",
         message: "해당 서평에 대한 정보를 찾지 못했습니다."
       });
     }
-    if ((review as IReview).likes.includes(user_id)) {
+    if ((reviewDoc as IReview).likes.includes(user)) {
       return Promise.reject({
         status: 409,
         type: "DuplicateLike",
         message: "이미 좋아요를 한 서평입니다."
       });
     }
-    (review as IReview).likes.push(user_id);
-    await review.save();
+    (reviewDoc as IReview).likes.push(user);
+    await reviewDoc.save();
   },
 
-  deleteLike: async (review_id: string, user_id: string) => {
-    const review: IReview = (await Review.findById(review_id)) as IReview;
-    if (!review) {
+  deleteLike: async (review: string, user: string) => {
+    const reviewDoc: IReview = (await Review.findById(review)) as IReview;
+    if (!reviewDoc) {
       return Promise.reject({
         status: 404,
         type: "ReviewNotFound",
         message: "해당 서평에 대한 정보를 찾지 못했습니다."
       });
     }
-    const index = review.likes.indexOf(user_id);
+    const index = reviewDoc.likes.indexOf(user);
     if (index === -1) {
       return Promise.reject({
         status: 404,
@@ -153,8 +153,8 @@ const reviewService = {
         message: "해당 좋아요에 대한 정보를 찾지 못했습니다."
       });
     }
-    review.likes.splice(index, 1);
-    await review.save();
+    reviewDoc.likes.splice(index, 1);
+    await reviewDoc.save();
   }
 };
 
