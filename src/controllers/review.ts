@@ -34,7 +34,10 @@ reviewRouter.get("/", async (req: Request, res: Response) => {
 reviewRouter.get("/:id", async (req: Request, res: Response) => {
   try {
     const getReviewRes: any = await reviewService.getReview(req.params.id);
-    if (!getReviewRes.published && req.session.user !== getReviewRes.id) {
+    if (
+      !getReviewRes.published &&
+      req.session.user !== getReviewRes.author.id
+    ) {
       return res
         .status(401)
         .send(Unauthorized("해당 서평에 접근 권한이 없습니다."));
@@ -75,7 +78,7 @@ reviewRouter.post("/", async (req: Request, res: Response) => {
   if (!req.session.user) {
     return res
       .status(401)
-      .send(Unauthorized("해당 서평에 접근 권한이 없습니다."));
+      .send(Unauthorized("서평을 생성할 수 있는 권한이 없습니다."));
   }
   req.body.author = req.session.user;
   try {
