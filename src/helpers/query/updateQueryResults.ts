@@ -4,11 +4,10 @@ export default function updateQueryResults(
   updateArr: Document[]
 ): Document[] {
   if (!resultArr) {
-    resultArr = updateArr;
+    return updateArr;
   } else {
-    resultArr = updateArr.filter((a: any) => {
-      return updateArr.some((b: any) => b.id === a.id);
+    return updateArr.filter((a: any) => {
+      return resultArr.some((b: any) => b.id === a.id);
     });
   }
-  return resultArr;
 }
