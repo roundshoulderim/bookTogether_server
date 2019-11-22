@@ -119,6 +119,24 @@ const curationService = {
       })
       .select("-books -reviews");
     return updatedReview;
+  },
+
+  deleteCuration: async (id: string, user: string) => {
+    const curation: Document = await Curation.findById(id);
+    if (!curation) {
+      return Promise.reject({
+        status: 404,
+        type: "CurationNotFound",
+        message: "해당 큐레이션에 대한 정보를 찾지 못했습니다."
+      });
+    } else if ((curation as ICuration).author !== user) {
+      return Promise.reject({
+        status: 401,
+        type: "Unauthorized",
+        message: "해당 큐레이션을 삭제할 수 있는 권한이 없습니다."
+      });
+    }
+    return Curation.findByIdAndDelete(id);
   }
 };
 

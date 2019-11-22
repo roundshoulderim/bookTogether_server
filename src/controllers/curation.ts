@@ -89,4 +89,18 @@ curationRouter.patch("/:id", async (req: Request, res: Response) => {
   }
 });
 
+curationRouter.delete("/:id", async (req: Request, res: Response) => {
+  try {
+    await curationService.deleteCuration(req.params.id, req.session.user);
+    res.sendStatus(204);
+  } catch (error) {
+    if (error.type === "CurationNotFound") {
+      return res.status(404).send({ error });
+    } else if (error.type === "Unauthorized") {
+      return res.status(401).send({ error });
+    }
+    res.status(500).send(InternalError);
+  }
+});
+
 export default curationRouter;
