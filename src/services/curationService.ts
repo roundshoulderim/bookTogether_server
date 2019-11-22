@@ -67,6 +67,117 @@ const curationService = {
       );
     }
     return curations;
+  },
+
+  getCuration: async (id: string) => {
+    const curation: Document = await Curation.findById(id)
+      .populate({ path: "author", select: "image name profile" })
+      .select("-books -reviews");
+    if (curation) {
+      return curation;
+    } else {
+      return Promise.reject({
+        status: 404,
+        type: "CurationNotFound",
+        message: "해당 큐레이션에 대한 정보를 찾을 수가 없습니다."
+      });
+    }
+  },
+
+  postCuration: async (postBody: ICuration) => {
+    const curation: Document = new Curation(postBody);
+    await curation.save();
+    return await Curation.findById(curation.id)
+      .populate({
+        path: "author",
+        select: "image name profile"
+      })
+      .select("-books -reviews");
+  },
+
+  patchCuration: async (patchBody: ICuration, id: string) => {
+    const curation: Document = await Curation.findById(id);
+    if (!curation) {
+      return Promise.reject({
+        status: 404,
+        type: "CurationNotFound",
+        message: "해당 큐레이션에 대한 정보를 찾지 못했습니다."
+      });
+    }
+    if ((curation as ICuration).author !== patchBody.author) {
+      return Promise.reject({
+        status: 401,
+        type: "Unauthorized",
+        message: "해당 큐레이션에 수정 권한이 없습니다."
+      });
+    }
+    const updatedReview = await curation
+      .updateOne(patchBody)
+      .populate({
+        path: "author",
+        select: "image name profile"
+      })
+      .select("-books -reviews");
+    return updatedReview;
+  },
+
+  deleteCuration: async (id: string, user: string) => {
+    const curation: Document = await Curation.findById(id);
+    if (!curation) {
+      return Promise.reject({
+        status: 404,
+        type: "CurationNotFound",
+        message: "해당 큐레이션에 대한 정보를 찾지 못했습니다."
+      });
+    } else if ((curation as ICuration).author !== user) {
+      return Promise.reject({
+        status: 401,
+        type: "Unauthorized",
+        message: "해당 큐레이션을 삭제할 수 있는 권한이 없습니다."
+      });
+    }
+    return Curation.findByIdAndDelete(id);
+  },
+
+  postLike: async (id: string, user: string) => {
+    const curation: Document = await Curation.findById(id);
+    if (!curation) {
+      return Promise.reject({
+        status: 404,
+        type: "CurationNotFound",
+        message: "해당 큐레이션에 대한 정보를 찾지 못했습니다."
+      });
+    }
+    if ((curation as ICuration).likes.includes(user)) {
+      return Promise.reject({
+        status: 409,
+        type: "DuplicateLike",
+        message: "이미 좋아요를 한 큐레이션입니다."
+      });
+    }
+    (curation as ICuration).likes.push(user);
+    await curation.save();
+  },
+
+  deleteLike: async (id: string, user: string) => {
+    const curation: ICuration = (await Curation.findById(id)) as ICuration;
+    if (!curation) {
+      return Promise.reject({
+        status: 404,
+        type: "CurationNotFound",
+        message: "해당 큐레이션에 대한 정보를 찾지 못했습니다."
+      });
+    }
+    const index = curation.likes.indexOf(user);
+    if (index === -1) {
+      return Promise.reject({
+        status: 404,
+        type: "LikeNotFound",
+        message: "해당 좋아요에 대한 정보를 찾지 못했습니다."
+      });
+    }
+    curation.likes.splice(index, 1);
+    await curation.save();
   }
 };
 

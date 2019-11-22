@@ -107,7 +107,11 @@ const reviewService = {
       });
     }
     if ((review as IReview).author !== patchBody.author) {
-      return Promise.reject(Unauthorized("해당 서평에 수정 권한이 없습니다."));
+      return Promise.reject({
+        status: 401,
+        type: "Unauthorized",
+        message: "해당 서평에 수정 권한이 없습니다."
+      });
     }
     const updatedReview = await review
       .updateOne(patchBody)

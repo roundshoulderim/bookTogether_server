@@ -107,18 +107,11 @@ reviewRouter.patch("/:id", async (req: Request, res: Response) => {
     );
     res.status(200).send(patchReviewRes);
   } catch (error) {
-    if (error.name === "CastError" || error.type === "ReviewNotFound") {
-      return res
-        .status(404)
-        .send(
-          NotFound(
-            "ReviewNotFound",
-            "해당 서평에 대한 정보를 찾을 수가 없습니다."
-          )
-        );
+    if (error.type === "ReviewNotFound") {
+      return res.status(404).send({ error });
     }
     if (error.type === "Unauthorized") {
-      return res.status(401).send(error);
+      return res.status(401).send({ error });
     }
     res.status(500).send(InternalError);
   }
