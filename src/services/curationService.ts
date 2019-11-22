@@ -157,6 +157,27 @@ const curationService = {
     }
     (curation as ICuration).likes.push(user);
     await curation.save();
+  },
+
+  deleteLike: async (id: string, user: string) => {
+    const curation: ICuration = (await Curation.findById(id)) as ICuration;
+    if (!curation) {
+      return Promise.reject({
+        status: 404,
+        type: "CurationNotFound",
+        message: "해당 큐레이션에 대한 정보를 찾지 못했습니다."
+      });
+    }
+    const index = curation.likes.indexOf(user);
+    if (index === -1) {
+      return Promise.reject({
+        status: 404,
+        type: "LikeNotFound",
+        message: "해당 좋아요에 대한 정보를 찾지 못했습니다."
+      });
+    }
+    curation.likes.splice(index, 1);
+    await curation.save();
   }
 };
 

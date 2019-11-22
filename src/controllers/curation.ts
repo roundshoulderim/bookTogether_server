@@ -122,4 +122,23 @@ curationRouter.post("/:id/likes", async (req: Request, res: Response) => {
   }
 });
 
+curationRouter.delete("/:id/likes", async (req: Request, res: Response) => {
+  if (!req.session.user) {
+    return res
+      .status(401)
+      .send(Unauthorized("해당 좋아요를 취소할 수 없습니다."));
+  }
+  try {
+    await curationService.deleteLike(req.params.id, req.session.user);
+    res.sendStatus(204);
+  } catch (error) {
+    if (error.type === "CurationNotFound") {
+      return res.status(404).send({ error });
+    } else if (error.type === "LikeNotFound") {
+      return res.status(404).send({ error });
+    }
+    res.status(500).send(InternalError);
+  }
+});
+
 export default curationRouter;
