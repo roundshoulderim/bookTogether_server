@@ -9,16 +9,16 @@ import Unauthorized from "../helpers/errors/unauthorized";
 const reviewRouter: express.Router = express.Router();
 
 reviewRouter.get("/", async (req: Request, res: Response) => {
-  const { list_type, book, curation } = req.query;
-  if (!list_type && !book && !curation) {
+  const { author, list_type, book, curation } = req.query;
+  if (!author && !list_type && !book && !curation) {
     return res.status(400).send(InvalidQuery);
   }
-  if (list_type === "personal" || list_type === "my_likes") {
+  if (list_type === "my_likes") {
     if (!req.session.user) {
       return res
         .status(401)
         .send(
-          Unauthorized("인증을 한 후에만 해당 서평 목록을 불러올 수 있습니다.")
+          Unauthorized("인증을 한 후에 내가 좋아한 서평을 가져올 수 있습니다.")
         );
     }
     req.query.user = req.session.user; // add user so it can be used to filter
@@ -34,7 +34,10 @@ reviewRouter.get("/", async (req: Request, res: Response) => {
 reviewRouter.get("/:id", async (req: Request, res: Response) => {
   try {
     const getReviewRes: any = await reviewService.getReview(req.params.id);
-    if (!getReviewRes.published && req.session.user !== getReviewRes.id) {
+    if (
+      !getReviewRes.published &&
+      req.session.user !== getReviewRes.author.id
+    ) {
       return res
         .status(401)
         .send(Unauthorized("해당 서평에 접근 권한이 없습니다."));
@@ -75,7 +78,7 @@ reviewRouter.post("/", async (req: Request, res: Response) => {
   if (!req.session.user) {
     return res
       .status(401)
-      .send(Unauthorized("해당 서평에 접근 권한이 없습니다."));
+      .send(Unauthorized("서평을 생성할 수 있는 권한이 없습니다."));
   }
   req.body.author = req.session.user;
   try {
@@ -94,7 +97,7 @@ reviewRouter.patch("/:id", async (req: Request, res: Response) => {
   if (!req.session.user) {
     return res
       .status(401)
-      .send(Unauthorized("해당 서평에 접근 권한이 없습니다."));
+      .send(Unauthorized("해당 서평에 수정 권한이 없습니다."));
   }
   req.body.author = req.session.user;
   try {
