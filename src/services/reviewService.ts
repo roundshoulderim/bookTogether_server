@@ -5,6 +5,7 @@ import Unauthorized from "../helpers/errors/unauthorized";
 import updateQueryResults from "../helpers/query/updateQueryResults";
 
 interface IQuery {
+  author: string;
   book: string;
   curation: string;
   list_type: string;
@@ -24,7 +25,7 @@ interface IReview extends Document {
 const reviewService = {
   getReviews: async (query: IQuery) => {
     let reviews: Document[];
-    const { book, curation, list_type, user } = query;
+    const { author, book, curation, list_type, user } = query;
 
     function findMatchingReviews(
       condition: object
@@ -45,12 +46,14 @@ const reviewService = {
           reviews,
           await findMatchingReviews({ likes: user })
         );
-      } else if (list_type === "personal") {
-        reviews = updateQueryResults(
-          reviews,
-          await findMatchingReviews({ author: user })
-        );
       }
+    }
+    if (author) {
+      // Get all reviews by a specific user / author
+      reviews = updateQueryResults(
+        reviews,
+        await findMatchingReviews({ author })
+      );
     }
     if (book) {
       // Get all reviews about a specific book
