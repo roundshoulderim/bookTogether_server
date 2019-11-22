@@ -7,7 +7,6 @@ export const CurationSchema: mongoose.Schema = new Schema(
     books: [{ type: Schema.Types.ObjectId, ref: "Book" }],
     contents: String,
     likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
-    published: Boolean,
     reviews: [{ type: Schema.Types.ObjectId, ref: "Review" }],
     title: String
   },

@@ -14,7 +14,6 @@ interface ICuration extends Document {
   books: string[];
   contents: string;
   likes: string[];
-  published: boolean;
   reviews: string[];
   title: string;
 }
