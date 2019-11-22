@@ -31,4 +31,17 @@ curationRouter.get("/", async (req: Request, res: Response) => {
   }
 });
 
+curationRouter.get("/:id", async (req: Request, res: Response) => {
+  try {
+    const getCurationRes = await curationService.getCuration(req.params.id);
+    res.status(200).send(getCurationRes);
+  } catch (error) {
+    if (error.type === "CurationNotFound") {
+      res.status(404).send({ error });
+    } else {
+      res.status(500).send(InternalError);
+    }
+  }
+});
+
 export default curationRouter;

@@ -67,6 +67,21 @@ const curationService = {
       );
     }
     return curations;
+  },
+
+  getCuration: async (id: string) => {
+    const curation: Document = await Curation.findById(id)
+      .populate({ path: "author", select: "image name profile" })
+      .select("-books -reviews");
+    if (curation) {
+      return curation;
+    } else {
+      return Promise.reject({
+        status: 404,
+        type: "CurationNotFound",
+        message: "해당 큐레이션에 대한 정보를 찾을 수가 없습니다."
+      });
+    }
   }
 };
 
