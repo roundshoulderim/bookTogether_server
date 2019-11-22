@@ -103,4 +103,23 @@ curationRouter.delete("/:id", async (req: Request, res: Response) => {
   }
 });
 
+curationRouter.post("/:id/likes", async (req: Request, res: Response) => {
+  if (!req.session.user) {
+    return res
+      .status(401)
+      .send(Unauthorized("로그인 한 후 좋아요를 누를 수 있습니다."));
+  }
+  try {
+    await curationService.postLike(req.params.id, req.session.user);
+    res.status(201).send({ user: req.session.user, curation: req.params.id });
+  } catch (error) {
+    if (error.type === "CurationNotFound") {
+      return res.status(404).send({ error });
+    } else if (error.type === "DuplicateLike") {
+      return res.status(409).send({ error });
+    }
+    res.status(500).send(InternalError);
+  }
+});
+
 export default curationRouter;

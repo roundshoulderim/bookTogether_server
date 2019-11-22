@@ -137,6 +137,26 @@ const curationService = {
       });
     }
     return Curation.findByIdAndDelete(id);
+  },
+
+  postLike: async (id: string, user: string) => {
+    const curation: Document = await Curation.findById(id);
+    if (!curation) {
+      return Promise.reject({
+        status: 404,
+        type: "CurationNotFound",
+        message: "해당 큐레이션에 대한 정보를 찾지 못했습니다."
+      });
+    }
+    if ((curation as ICuration).likes.includes(user)) {
+      return Promise.reject({
+        status: 409,
+        type: "DuplicateLike",
+        message: "이미 좋아요를 한 큐레이션입니다."
+      });
+    }
+    (curation as ICuration).likes.push(user);
+    await curation.save();
   }
 };
 
