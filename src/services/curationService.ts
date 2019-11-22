@@ -3,6 +3,7 @@ import Curation from "../models/Curation";
 import updateQueryResults from "../helpers/query/updateQueryResults";
 
 interface IQuery {
+  author: string;
   book: string;
   list_type: string;
   review: string;
@@ -21,7 +22,7 @@ interface ICuration extends Document {
 const curationService = {
   getCurations: async (query: IQuery) => {
     let curations: Document[];
-    const { book, list_type, review, user } = query;
+    const { author, book, list_type, review, user } = query;
 
     function findMatchingCurations(
       condition: object
@@ -42,12 +43,14 @@ const curationService = {
           curations,
           await findMatchingCurations({ likes: user })
         );
-      } else if (list_type === "personal") {
-        curations = updateQueryResults(
-          curations,
-          await findMatchingCurations({ author: user })
-        );
       }
+    }
+    if (author) {
+      // Get all curations by a certain user
+      curations = updateQueryResults(
+        curations,
+        await findMatchingCurations({ author })
+      );
     }
     if (book) {
       // Get curations that contain a specific book
