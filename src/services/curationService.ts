@@ -93,6 +93,32 @@ const curationService = {
         select: "image name profile"
       })
       .select("-books -reviews");
+  },
+
+  patchCuration: async (patchBody: ICuration, id: string) => {
+    const curation: Document = await Curation.findById(id);
+    if (!curation) {
+      return Promise.reject({
+        status: 404,
+        type: "CurationNotFound",
+        message: "해당 큐레이션에 대한 정보를 찾지 못했습니다."
+      });
+    }
+    if ((curation as ICuration).author !== patchBody.author) {
+      return Promise.reject({
+        status: 401,
+        type: "Unauthorized",
+        message: "해당 큐레이션에 수정 권한이 없습니다."
+      });
+    }
+    const updatedReview = await curation
+      .updateOne(patchBody)
+      .populate({
+        path: "author",
+        select: "image name profile"
+      })
+      .select("-books -reviews");
+    return updatedReview;
   }
 };
 
