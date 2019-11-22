@@ -97,7 +97,7 @@ reviewRouter.patch("/:id", async (req: Request, res: Response) => {
   if (!req.session.user) {
     return res
       .status(401)
-      .send(Unauthorized("해당 서평에 접근 권한이 없습니다."));
+      .send(Unauthorized("해당 서평에 수정 권한이 없습니다."));
   }
   req.body.author = req.session.user;
   try {
