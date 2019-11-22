@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import curationService from "../services/curationService";
+import InvalidBody from "../helpers/errors/invalidBody";
 import InvalidQuery from "../helpers/errors/invalidQuery";
 import InternalError from "../helpers/errors/internalError";
 import Unauthorized from "../helpers/errors/unauthorized";
@@ -41,6 +42,24 @@ curationRouter.get("/:id", async (req: Request, res: Response) => {
     } else {
       res.status(500).send(InternalError);
     }
+  }
+});
+
+curationRouter.post("/", async (req: Request, res: Response) => {
+  const { books, contents, reviews, title } = req.body;
+  if (!books || !contents || !reviews || !title) {
+    return res.status(400).send(InvalidBody);
+  } else if (!req.session.user) {
+    return res
+      .status(401)
+      .send(Unauthorized("인증을 한 후에 큐레이션을 생성할 수 있습니다."));
+  }
+  req.body.author = req.session.user;
+  try {
+    const postCurationRes = await curationService.postCuration(req.body);
+    res.status(201).send(postCurationRes);
+  } catch (error) {
+    res.status(500).send(InternalError);
   }
 });
 

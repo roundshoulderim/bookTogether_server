@@ -82,6 +82,17 @@ const curationService = {
         message: "해당 큐레이션에 대한 정보를 찾을 수가 없습니다."
       });
     }
+  },
+
+  postCuration: async (postBody: ICuration) => {
+    const curation: Document = new Curation(postBody);
+    await curation.save();
+    return await Curation.findById(curation.id)
+      .populate({
+        path: "author",
+        select: "image name profile"
+      })
+      .select("-books -reviews");
   }
 };
 
