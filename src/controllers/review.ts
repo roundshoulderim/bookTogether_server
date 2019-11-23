@@ -31,6 +31,19 @@ reviewRouter.get("/", async (req: Request, res: Response) => {
   }
 });
 
+reviewRouter.get("/search", async (req: Request, res: Response) => {
+  const { query } = req.query;
+  if (!query) {
+    return res.status(400).send(InvalidQuery);
+  }
+  try {
+    const results: object = await reviewService.searchReviews(req.query);
+    res.status(200).send(results);
+  } catch (error) {
+    res.status(500).send(InternalError);
+  }
+});
+
 reviewRouter.get("/:id", async (req: Request, res: Response) => {
   try {
     const getReviewRes: any = await reviewService.getReview(req.params.id);
@@ -106,6 +119,21 @@ reviewRouter.patch("/:id", async (req: Request, res: Response) => {
       req.params.id
     );
     res.status(200).send(patchReviewRes);
+  } catch (error) {
+    if (error.type === "ReviewNotFound") {
+      return res.status(404).send({ error });
+    }
+    if (error.type === "Unauthorized") {
+      return res.status(401).send({ error });
+    }
+    res.status(500).send(InternalError);
+  }
+});
+
+reviewRouter.delete("/:id", async (req: Request, res: Response) => {
+  try {
+    await reviewService.deleteReview(req.params.id, req.session.user);
+    res.sendStatus(204);
   } catch (error) {
     if (error.type === "ReviewNotFound") {
       return res.status(404).send({ error });

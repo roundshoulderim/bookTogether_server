@@ -12,6 +12,12 @@ interface IQuery {
   user: string;
 }
 
+interface ISearchQuery {
+  query: string;
+  size: number;
+  page: number;
+}
+
 interface IReview extends Document {
   author: string;
   books: string[];
@@ -77,6 +83,34 @@ const reviewService = {
     return reviews;
   },
 
+  searchReviews: async ({ query, size, page }: ISearchQuery) => {
+    size = size ? size : 20;
+    page = page ? page : 1;
+    const options = {
+      page,
+      limit: size,
+      select: "-books",
+      populate: {
+        path: "author",
+        select: "image name profile"
+      }
+    };
+    // Later refactor so we can search based on book titles
+    const { docs, totalDocs, hasNextPage, totalPages } = await Review.paginate(
+      {
+        title: { $regex: new RegExp(query, "i") }
+      },
+      options
+    );
+    return {
+      results_count: totalDocs,
+      pageable_count: totalPages,
+      current_page: page,
+      is_end: !hasNextPage,
+      reviews: docs
+    };
+  },
+
   getReview: async (id: string) => {
     return await Review.findById(id)
       .populate({
@@ -121,6 +155,24 @@ const reviewService = {
       })
       .select("-books");
     return updatedReview;
+  },
+
+  deleteReview: async (id: string, user: string) => {
+    const review: IReview = (await Review.findById(id)) as IReview;
+    if (!review) {
+      return Promise.reject({
+        status: 404,
+        type: "ReviewNotFound",
+        message: "해당 서평에 대한 정보를 찾을 수가 없습니다."
+      });
+    } else if (review.author !== user) {
+      return Promise.reject({
+        status: 401,
+        type: "Unauthorized",
+        message: "해당 리뷰를 삭제할 수 있는 권한이 없습니다."
+      });
+    }
+    await Review.findByIdAndDelete(id);
   },
 
   postLike: async (review: string, user: string) => {
