@@ -123,6 +123,24 @@ const reviewService = {
     return updatedReview;
   },
 
+  deleteReview: async (id: string, user: string) => {
+    const review: IReview = (await Review.findById(id)) as IReview;
+    if (!review) {
+      return Promise.reject({
+        status: 404,
+        type: "ReviewNotFound",
+        message: "해당 서평에 대한 정보를 찾을 수가 없습니다."
+      });
+    } else if (review.author !== user) {
+      return Promise.reject({
+        status: 401,
+        type: "Unauthorized",
+        message: "해당 리뷰를 삭제할 수 있는 권한이 없습니다."
+      });
+    }
+    await Review.findByIdAndDelete(id);
+  },
+
   postLike: async (review: string, user: string) => {
     const reviewDoc = await Review.findById(review);
     if (!reviewDoc) {

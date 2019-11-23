@@ -117,6 +117,21 @@ reviewRouter.patch("/:id", async (req: Request, res: Response) => {
   }
 });
 
+reviewRouter.delete("/:id", async (req: Request, res: Response) => {
+  try {
+    await reviewService.deleteReview(req.params.id, req.session.user);
+    res.sendStatus(204);
+  } catch (error) {
+    if (error.type === "ReviewNotFound") {
+      return res.status(404).send({ error });
+    }
+    if (error.type === "Unauthorized") {
+      return res.status(401).send({ error });
+    }
+    res.status(500).send(InternalError);
+  }
+});
+
 reviewRouter.post("/:id/likes", async (req: Request, res: Response) => {
   if (!req.session.user) {
     return res
