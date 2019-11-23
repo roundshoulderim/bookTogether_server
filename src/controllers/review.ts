@@ -31,6 +31,19 @@ reviewRouter.get("/", async (req: Request, res: Response) => {
   }
 });
 
+reviewRouter.get("/search", async (req: Request, res: Response) => {
+  const { query } = req.query;
+  if (!query) {
+    return res.status(400).send(InvalidQuery);
+  }
+  try {
+    const results: object = await reviewService.searchReviews(req.query);
+    res.status(200).send(results);
+  } catch (error) {
+    res.status(500).send(InternalError);
+  }
+});
+
 reviewRouter.get("/:id", async (req: Request, res: Response) => {
   try {
     const getReviewRes: any = await reviewService.getReview(req.params.id);

@@ -12,6 +12,12 @@ interface IQuery {
   user: string;
 }
 
+interface ISearchQuery {
+  query: string;
+  size: number;
+  page: number;
+}
+
 interface IReview extends Document {
   author: string;
   books: string[];
@@ -75,6 +81,34 @@ const reviewService = {
       reviews = updateQueryResults(reviews, curationDoc.reviews);
     }
     return reviews;
+  },
+
+  searchReviews: async ({ query, size, page }: ISearchQuery) => {
+    size = size ? size : 20;
+    page = page ? page : 1;
+    const options = {
+      page,
+      limit: size,
+      select: "-books",
+      populate: {
+        path: "author",
+        select: "image name profile"
+      }
+    };
+    // Later refactor so we can search based on book titles
+    const { docs, totalDocs, hasNextPage, totalPages } = await Review.paginate(
+      {
+        title: { $regex: new RegExp(query, "i") }
+      },
+      options
+    );
+    return {
+      results_count: totalDocs,
+      pageable_count: totalPages,
+      current_page: page,
+      is_end: !hasNextPage,
+      reviews: docs
+    };
   },
 
   getReview: async (id: string) => {

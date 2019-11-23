@@ -1,4 +1,5 @@
-import mongoose, { Document, Model } from "mongoose";
+import mongoose from "mongoose";
+import mongoosePaginate from "mongoose-paginate-v2";
 const Schema: any = mongoose.Schema;
 
 export const ReviewSchema: mongoose.Schema = new Schema(
@@ -14,12 +15,10 @@ export const ReviewSchema: mongoose.Schema = new Schema(
   { versionKey: false }
 );
 
-ReviewSchema.method("toClient", function(): object {
-  const obj = this.toObject();
-  obj.id = obj._id;
-  delete obj._id;
-  return obj;
-});
+ReviewSchema.plugin(mongoosePaginate); // add pagination method
 
-const Review: Model<Document, {}> = mongoose.model("Review", ReviewSchema);
+const Review: mongoose.PaginateModel<any> = mongoose.model(
+  "Review",
+  ReviewSchema
+);
 export default Review;
