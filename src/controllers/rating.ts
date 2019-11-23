@@ -45,4 +45,23 @@ ratingRouter.post("/", async (req: Request, res: Response) => {
   }
 });
 
+ratingRouter.patch("/:id", async (req: Request, res: Response) => {
+  const { rating } = req.body;
+  if (rating === undefined) {
+    return res.status(400).send(InvalidBody);
+  }
+  const patchBody = { id: req.params.id, rating, user: req.session.user };
+  try {
+    const patchRatingRes = await ratingService.patchRating(patchBody);
+    return res.status(200).send(patchRatingRes);
+  } catch (error) {
+    if (error.type === "Unauthorized") {
+      return res.status(401).send({ error });
+    } else if (error.type === "RatingNotFound") {
+      return res.status(404).send({ error });
+    }
+    return res.status(500).send(InternalError);
+  }
+});
+
 export default ratingRouter;

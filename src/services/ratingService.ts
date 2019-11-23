@@ -58,6 +58,34 @@ const ratingService = {
     let newRating = new Rating({ book, user, rating });
     newRating = await newRating.save();
     return newRating;
+  },
+
+  patchRating: async ({
+    id,
+    user,
+    rating
+  }: {
+    id: string;
+    user: string;
+    rating: number;
+  }) => {
+    const ratingDoc: IRating = (await Rating.findById(id)) as IRating;
+    if (!ratingDoc) {
+      return Promise.reject({
+        status: 404,
+        type: "RatingNotFound",
+        message: "해당 평점에 대한 정보를 찾을 수가 없습니다."
+      });
+    } else if (ratingDoc.user !== user) {
+      return Promise.reject({
+        status: 401,
+        type: "Unauthorized",
+        message: "해당 평점을 수정할 수 있는 권한이 없습니다."
+      });
+    }
+    ratingDoc.rating = rating;
+    ratingDoc.save();
+    return ratingDoc;
   }
 };
 
