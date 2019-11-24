@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import authorizationCheck from "../helpers/middleware/authorizationCheck";
+import upload from "../config/s3-upload";
 import userService from "../services/userService";
 import InternalError from "../helpers/errors/internalError";
 
@@ -21,7 +22,11 @@ userRouter.get(
 userRouter.patch(
   "/",
   authorizationCheck("인증을 한 후에만 사용자 정보를 업데이트 할 수 있습니다."),
+  upload.single("image"),
   async (req: Request, res: Response) => {
+    if (req.file) {
+      req.body.image = req.file.location;
+    }
     try {
       const patchUserRes = await userService.patchUser(
         req.session.user,
