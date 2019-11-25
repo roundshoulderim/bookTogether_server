@@ -76,7 +76,7 @@ const ratingService = {
         type: "RatingNotFound",
         message: "해당 평점에 대한 정보를 찾을 수가 없습니다."
       });
-    } else if (ratingDoc.user !== user) {
+    } else if (ratingDoc.user.toString() !== user) {
       return Promise.reject({
         status: 401,
         type: "Unauthorized",
