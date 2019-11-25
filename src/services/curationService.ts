@@ -104,7 +104,7 @@ const curationService = {
         message: "해당 큐레이션에 대한 정보를 찾지 못했습니다."
       });
     }
-    if ((curation as ICuration).author !== patchBody.author) {
+    if ((curation as ICuration).author.toString() !== patchBody.author) {
       return Promise.reject({
         status: 401,
         type: "Unauthorized",
@@ -128,7 +128,7 @@ const curationService = {
         type: "CurationNotFound",
         message: "해당 큐레이션에 대한 정보를 찾지 못했습니다."
       });
-    } else if ((curation as ICuration).author !== user) {
+    } else if ((curation as ICuration).author.toString() !== user) {
       return Promise.reject({
         status: 401,
         type: "Unauthorized",

@@ -1,7 +1,6 @@
 import { Document, DocumentQuery } from "mongoose";
 import Curation from "../models/Curation";
 import Review from "../models/Review";
-import Unauthorized from "../helpers/errors/unauthorized";
 import updateQueryResults from "../helpers/query/updateQueryResults";
 
 interface IQuery {
@@ -140,7 +139,7 @@ const reviewService = {
         message: "해당 서평에 대한 정보를 찾지 못했습니다."
       });
     }
-    if ((review as IReview).author !== patchBody.author) {
+    if ((review as IReview).author.toString() !== patchBody.author) {
       return Promise.reject({
         status: 401,
         type: "Unauthorized",
@@ -164,7 +163,7 @@ const reviewService = {
         type: "ReviewNotFound",
         message: "해당 서평에 대한 정보를 찾을 수가 없습니다."
       });
-    } else if (review.author !== user) {
+    } else if (review.author.toString() !== user) {
       return Promise.reject({
         status: 401,
         type: "Unauthorized",
