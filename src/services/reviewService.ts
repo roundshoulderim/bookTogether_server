@@ -147,14 +147,13 @@ const reviewService = {
         message: "해당 서평에 수정 권한이 없습니다."
       });
     }
-    const updatedReview = await review
-      .updateOne(patchBody)
+    await review.updateOne(patchBody);
+    return await Review.findById(id)
       .populate({
         path: "author",
         select: "image name profile"
       })
       .select("-books");
-    return updatedReview;
   },
 
   deleteReview: async (id: string, user: string) => {
