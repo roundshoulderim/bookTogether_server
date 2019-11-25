@@ -111,14 +111,13 @@ const curationService = {
         message: "해당 큐레이션에 수정 권한이 없습니다."
       });
     }
-    const updatedReview = await curation
-      .updateOne(patchBody)
+    await curation.updateOne(patchBody);
+    return await Curation.findById(id)
       .populate({
         path: "author",
         select: "image name profile"
       })
       .select("-books -reviews");
-    return updatedReview;
   },
 
   deleteCuration: async (id: string, user: string) => {
