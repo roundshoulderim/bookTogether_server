@@ -20,10 +20,17 @@ mongoose.connect(dbUrl, {
 
 const app: express.Application = express();
 
+const whitelist = [process.env.CLIENT_URL, process.env.LOCAL_CLIENT_URL];
 app.use(morgan("dev"));
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: (origin, callback) => {
+      if (whitelist.indexOf(origin) !== -1 || !origin) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true
   })
 );
