@@ -61,10 +61,8 @@ ReviewSchema.statics.search = async ({ query, page, size }: ISearchQuery) => {
               nested: {
                 path: "books",
                 query: {
-                  multi_match: {
-                    query,
-                    analyzer: "standard",
-                    fields: ["books.authors", "books.title^2"]
+                  match: {
+                    "books.title": { query, analyzer: "standard", boost: 2 }
                   }
                 }
               }

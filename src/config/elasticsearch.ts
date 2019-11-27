@@ -60,7 +60,6 @@ const reviewsBody = {
       books: {
         type: "nested",
         properties: {
-          authors: { type: "text", analyzer: "autocomplete" },
           title: { type: "text", analyzer: "autocomplete" }
         }
       },
