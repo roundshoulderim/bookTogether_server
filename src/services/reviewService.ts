@@ -85,29 +85,7 @@ const reviewService = {
   searchReviews: async ({ query, size, page }: ISearchQuery) => {
     size = size ? size : 20;
     page = page ? page : 1;
-    const options = {
-      page,
-      limit: size,
-      select: "-books",
-      populate: {
-        path: "author",
-        select: "image name profile"
-      }
-    };
-    // Later refactor so we can search based on book titles
-    const { docs, totalDocs, hasNextPage, totalPages } = await Review.paginate(
-      {
-        title: { $regex: new RegExp(query, "i") }
-      },
-      options
-    );
-    return {
-      results_count: totalDocs,
-      pageable_count: totalPages,
-      current_page: page,
-      is_end: !hasNextPage,
-      reviews: docs
-    };
+    return Review.search({ query, page, size });
   },
 
   getReview: async (id: string) => {
@@ -146,7 +124,7 @@ const reviewService = {
         message: "해당 서평에 수정 권한이 없습니다."
       });
     }
-    await review.updateOne(patchBody);
+    await review.updateOne(patchBody, { new: true }); // for updated doc in post hook
     return await Review.findById(id)
       .populate({
         path: "author",
