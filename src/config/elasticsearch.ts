@@ -1,9 +1,15 @@
 import { Client } from "@elastic/elasticsearch";
-import Book from "../models/Book";
-import mongoToES from "./esmigration";
+import migrateBooks from "./esmigration/migrateBooks";
 import dotenv from "dotenv";
 dotenv.config();
-const client: Client = new Client({ node: process.env.ES_HOST });
+const client: Client = new Client({
+  cloud: {
+    id: process.env.ES_CLOUD_ID,
+    username: process.env.ES_USERNAME,
+    password: process.env.ES_PASSWORD
+  }
+});
+
 const body = {
   settings: {
     analysis: {
@@ -38,10 +44,15 @@ const body = {
 };
 
 (async (): Promise<void> => {
-  const existing = await client.indices.exists({ index: "books" });
-  if (!existing.body) {
-    await client.indices.create({ index: "books", body });
-    mongoToES(Book);
+  try {
+    // await client.indices.delete({ index: "books" }); // For restarting ES
+    const existing = await client.indices.exists({ index: "books" });
+    if (!existing.body) {
+      await client.indices.create({ index: "books", body });
+      migrateBooks();
+    }
+  } catch (error) {
+    console.log(error);
   }
 })();
 
