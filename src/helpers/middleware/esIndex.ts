@@ -8,12 +8,14 @@ interface IBook extends Document {
   title: string;
 }
 
-export default function esIndex(book: Document): Promise<any> {
+export function esIndexBook(book: Document): Promise<any> {
   const { authors, contents, thumbnail, title } = book as IBook;
-  return client.index({
-    index: "books",
-    id: book.id,
-    refresh: "true",
-    body: { authors, contents, thumbnail, title }
-  });
+  return client
+    .index({
+      index: "books",
+      id: book.id,
+      refresh: "true",
+      body: { authors, contents, thumbnail, title }
+    })
+    .catch(error => console.log(error));
 }

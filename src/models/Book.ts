@@ -1,6 +1,6 @@
 import mongoose, { HookNextFunction } from "mongoose";
 import client from "../config/elasticsearch";
-import esIndex from "../helpers/middleware/esIndex";
+import { esIndexBook } from "../helpers/middleware/esIndex";
 const Schema: any = mongoose.Schema;
 
 interface ISearchQuery {
@@ -36,7 +36,7 @@ export const BookSchema: mongoose.Schema = new Schema(
 
 // Save updated index in ElasticSearch before updating MongoDB
 BookSchema.pre("save", async function(next: HookNextFunction): Promise<void> {
-  await esIndex(this);
+  await esIndexBook(this);
   next();
 });
 
