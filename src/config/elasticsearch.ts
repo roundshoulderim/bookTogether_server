@@ -1,5 +1,6 @@
 import { Client } from "@elastic/elasticsearch";
-import { migrateBooks } from "./esmigration";
+import Book from "../models/Book";
+import mongoToES from "./esmigration";
 import dotenv from "dotenv";
 dotenv.config();
 const client: Client = new Client({ node: process.env.ES_HOST });
@@ -40,7 +41,8 @@ const body = {
   const existing = await client.indices.exists({ index: "books" });
   if (!existing.body) {
     await client.indices.create({ index: "books", body });
-    migrateBooks();
+    mongoToES(Book);
   }
 })();
+
 export default client;

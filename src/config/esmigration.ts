@@ -1,8 +1,9 @@
-import Book from "../models/Book";
-import { Document } from "mongoose";
+import { Model, Document } from "mongoose";
 import esIndex from "../helpers/middleware/esIndex";
 
-export const migrateBooks = async () => {
-  const books = await Book.find({});
-  books.forEach((book: Document) => esIndex(book));
+const mongoToES = async (model: Model<Document, {}>) => {
+  const docs = await model.find({});
+  docs.forEach((doc: Document) => esIndex(doc));
 };
+
+export default mongoToES;
