@@ -37,27 +37,10 @@ const bookService = {
     return await Book.findById(id);
   },
 
-  searchBooks: async ({ query, size, page }: ISearchQuery) => {
+  searchBooks: ({ query, page, size }: ISearchQuery) => {
     size = size ? size : 20;
     page = page ? page : 1;
-    const options = {
-      page,
-      limit: size,
-      select: "authors contents thumbnail title"
-    };
-    const { docs, totalDocs, hasNextPage, totalPages } = await Book.paginate(
-      {
-        title: { $regex: new RegExp(query, "i") }
-      },
-      options
-    );
-    return {
-      results_count: totalDocs,
-      pageable_count: totalPages,
-      current_page: page,
-      is_end: !hasNextPage,
-      books: docs
-    };
+    return Book.search({ query, page, size });
   }
 };
 
