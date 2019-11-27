@@ -124,7 +124,10 @@ const reviewService = {
         message: "해당 서평에 수정 권한이 없습니다."
       });
     }
-    await review.updateOne(patchBody, { new: true }); // for updated doc in post hook
+    for (const key of Object.keys(patchBody)) {
+      review[key] = (patchBody as any)[key];
+    }
+    await review.save();
     return await Review.findById(id)
       .populate({
         path: "author",
