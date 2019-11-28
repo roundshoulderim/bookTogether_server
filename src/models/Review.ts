@@ -30,9 +30,11 @@ export const ReviewSchema: mongoose.Schema = new Schema(
   { versionKey: false }
 );
 
-// Updated index in ElasticSearch after updating mongoDB
-ReviewSchema.post("save", esIndexReview);
-ReviewSchema.post("updateOne", esIndexReview);
+// Updated index in ElasticSearch as well as MongoDB
+ReviewSchema.pre("save", async function(next: HookNextFunction): Promise<void> {
+  await esIndexReview(this);
+  next();
+});
 ReviewSchema.post("findOneAndDelete", doc => {
   client.delete({ id: doc.id, index: "reviews", refresh: "true" });
 });
@@ -61,10 +63,8 @@ ReviewSchema.statics.search = async ({ query, page, size }: ISearchQuery) => {
               nested: {
                 path: "books",
                 query: {
-                  multi_match: {
-                    query,
-                    analyzer: "standard",
-                    fields: ["books.authors", "books.title^2"]
+                  match: {
+                    "books.title": { query, analyzer: "standard", boost: 2 }
                   }
                 }
               }

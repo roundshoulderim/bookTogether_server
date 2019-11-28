@@ -27,7 +27,7 @@ export default async () => {
               path: "author",
               select: "image name profile"
             })
-            .populate({ path: "books", select: "authors title" })
+            .populate({ path: "books", select: "title" })
             .execPopulate()
         ).toObject();
         delete populatedReview._id;

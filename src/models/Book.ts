@@ -34,8 +34,11 @@ export const BookSchema: mongoose.Schema = new Schema(
   { versionKey: false }
 );
 
-// Update index in ES after updating MongoDB
-BookSchema.post("save", esIndexBook);
+// Updated index in ElasticSearch as well as MongoDB
+BookSchema.pre("save", async function(next: HookNextFunction): Promise<void> {
+  await esIndexBook(this);
+  next();
+});
 
 // Return paginated search results from ElasticSearch
 BookSchema.statics.search = async ({ query, page, size }: ISearchQuery) => {
