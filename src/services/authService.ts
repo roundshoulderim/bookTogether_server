@@ -75,7 +75,7 @@ const authService: IAuthService = {
       console.log(res.envelope);
     } catch (error) {
       console.log(error);
-      return Promise.reject();
+      return Promise.reject(error);
     }
   }
 };
