@@ -70,13 +70,13 @@ const authService: IAuthService = {
       subject: "서로모임 - 비밀번호 재설정 링크",
       text: `서로모임 비밀번호 변경을 원하신다면 다음 링크를 클릭해주세요:\n${process.env.CLIENT_URL}/reset/${token}`
     };
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        throw new Error();
-      } else {
-        console.log("Sent email: " + JSON.stringify(info.envelope));
-      }
-    });
+    try {
+      const res = await transporter.sendMail(mailOptions);
+      console.log(res.envelope);
+    } catch (error) {
+      console.log(error);
+      return Promise.reject();
+    }
   }
 };
 export default authService;
