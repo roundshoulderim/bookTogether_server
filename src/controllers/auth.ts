@@ -54,4 +54,21 @@ authRouter.post("/logout", async (req: Request, res: Response) => {
   });
 });
 
+// POST /findpw
+authRouter.post("/findpw", async (req: Request, res: Response) => {
+  if (!req.body.email) {
+    return res.status(400).send(InvalidBody);
+  }
+  try {
+    await authService.findpw(req.body.email);
+    res.status(200).send({ message: "비밀번호 재설정 메일이 전송되었습니다." });
+  } catch (error) {
+    if (error.type === "EmailNotFound") {
+      res.status(404).send({ error });
+    } else {
+      res.status(500).send(InternalError);
+    }
+  }
+});
+
 export default authRouter;

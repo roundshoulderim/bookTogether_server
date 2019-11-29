@@ -77,7 +77,6 @@ ReviewSchema.statics.search = async ({ query, page, size }: ISearchQuery) => {
   });
   results.reviews = response.body.hits.hits.map((result: any) => {
     result._source._id = result._id;
-    delete result.books;
     return result._source;
   });
   results.results_count = response.body.hits.total.value;

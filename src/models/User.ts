@@ -26,7 +26,9 @@ export const UserSchema: mongoose.Schema = new Schema(
       }
     ],
     numBooksGoal: { type: Number, default: 10 },
-    numReviewsGoal: { type: Number, default: 10 }
+    numReviewsGoal: { type: Number, default: 10 },
+    resetPasswordToken: String,
+    resetPasswordExpires: Number
   },
   { versionKey: false }
 );
