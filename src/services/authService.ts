@@ -1,5 +1,9 @@
 import User from "../models/User";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
+import dotenv from "dotenv";
+import transporter from "../config/ses-email";
+dotenv.config();
 
 interface IUserInfo {
   email: string;
@@ -10,6 +14,7 @@ interface IUserInfo {
 interface IAuthService<T = Promise<object>> {
   signUp: (userInfo: IUserInfo) => T;
   login: (userInfo: IUserInfo) => T;
+  findpw: (email: string) => T;
 }
 
 const authService: IAuthService = {
@@ -43,6 +48,35 @@ const authService: IAuthService = {
       };
     }
     return { id: user.id, message: "성공적으로 로그인 되었습니다." };
+  },
+
+  findpw: async (email: string): Promise<object> => {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return Promise.reject({
+        status: 404,
+        type: "EmailNotFound",
+        message: "입력하신 이메일로 가입되어 있는 계정이 없습니다."
+      });
+    }
+    const token = crypto.randomBytes(20).toString("hex");
+    await user.updateOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: Date.now() + 600000
+    });
+    const mailOptions = {
+      from: process.env.APP_EMAIL,
+      to: email,
+      subject: "서로모임 - 비밀번호 재설정 링크",
+      text: `서로모임 비밀번호 변경을 원하신다면 다음 링크를 클릭해주세요:\n${process.env.CLIENT_URL}/reset/${token}`
+    };
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        throw new Error();
+      } else {
+        console.log("Sent email: " + JSON.stringify(info.envelope));
+      }
+    });
   }
 };
 export default authService;
