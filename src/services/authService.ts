@@ -15,6 +15,7 @@ interface IAuthService<T = Promise<object>> {
   signUp: (userInfo: IUserInfo) => T;
   login: (userInfo: IUserInfo) => T;
   findpw: (email: string) => T;
+  checkpw: (userInfo: object) => T;
 }
 
 const authService: IAuthService = {
@@ -77,6 +78,19 @@ const authService: IAuthService = {
       console.log(error);
       return Promise.reject(error);
     }
+  },
+
+  checkpw: async ({ user, password }: { user: string; password: string }) => {
+    const userDoc: any = await User.findById(user);
+    if (!(await bcrypt.compare(password, userDoc.password))) {
+      return Promise.reject({
+        status: 401,
+        type: "IncorrectPassword",
+        message: "비밀번호가 일치하지 않습니다."
+      });
+    }
+    return { result: true };
   }
 };
+
 export default authService;

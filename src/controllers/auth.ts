@@ -71,4 +71,21 @@ authRouter.post("/findpw", async (req: Request, res: Response) => {
   }
 });
 
+// POST /auth/checkpw
+authRouter.post("/checkpw", async (req: Request, res: Response) => {
+  if (!req.body.password || !req.body.user) {
+    return res.status(400).send(InvalidBody);
+  }
+  try {
+    await authService.checkpw(req.body);
+    res.status(200).send({ message: "비밀번호가 일치합니다." });
+  } catch (error) {
+    if (error.type === "IncorrectPassword") {
+      res.status(401).send({ error });
+    } else {
+      res.status(500).send(InternalError);
+    }
+  }
+});
+
 export default authRouter;
