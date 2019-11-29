@@ -6,18 +6,26 @@ import InternalError from "../helpers/errors/internalError";
 
 const userRouter: express.Router = express.Router();
 
-userRouter.get(
-  "/",
-  authorizationCheck("인증을 한 후에만 사용자 정보를 불러올 수 있습니다."),
-  async (req: Request, res: Response) => {
-    try {
-      const getUserRes = await userService.getUser(req.session.user);
-      res.status(200).send(getUserRes);
-    } catch (error) {
-      res.status(500).send(InternalError);
-    }
+userRouter.get("/", async (req: Request, res: Response) => {
+  const resetPasswordToken: string = req.query.resetPasswordToken;
+  const user: string = req.session.user;
+  if (!resetPasswordToken && !user) {
+    const message: string =
+      "인증을 한 후에만 사용자 정보를 불러올 수 있습니다.";
+    return res
+      .status(401)
+      .send({ error: { status: 401, type: "Unauthorized", message } });
   }
-);
+  try {
+    const getUserRes = await userService.getUser({ resetPasswordToken, user });
+    res.status(200).send(getUserRes);
+  } catch (error) {
+    if (error.status === 403 || error.status === 404) {
+      return res.status(error.status).send({ error });
+    }
+    res.status(500).send(InternalError);
+  }
+});
 
 userRouter.patch(
   "/",
