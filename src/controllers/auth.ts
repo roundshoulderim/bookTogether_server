@@ -1,7 +1,8 @@
-import express, { Request, Response } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import authService from "../services/authService";
 import InvalidBody from "../helpers/errors/invalidBody";
 import InternalError from "../helpers/errors/internalError";
+import passport from "passport";
 
 const authRouter: express.Router = express.Router();
 
@@ -87,5 +88,34 @@ authRouter.post("/checkpw", async (req: Request, res: Response) => {
     }
   }
 });
+
+const addSocketIdToSession = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  req.session.socketId = req.query.socketId;
+  next();
+};
+
+authRouter.get(
+  "/facebook",
+  addSocketIdToSession,
+  passport.authenticate("facebook")
+);
+
+authRouter.get(
+  "/facebook/callback",
+  passport.authenticate("facebook"),
+  (req: Request) => {
+    const io = req.app.get("io");
+    const user: object = {
+      name: (req.user as any).displayName,
+      photo: (req.user as any).photos[0].value,
+      email: (req.user as any).emails[0].value
+    };
+    io.in(req.session.socketId).emit("facebook", user);
+  }
+);
 
 export default authRouter;
