@@ -106,15 +106,25 @@ authRouter.get(
 
 authRouter.get(
   "/facebook/callback",
-  passport.authenticate("facebook"),
+  passport.authenticate("facebook"), // No optional redirect parameter
   (req: Request) => {
-    const io = req.app.get("io");
-    const user: object = {
-      name: (req.user as any).displayName,
-      photo: (req.user as any).photos[0].value,
-      email: (req.user as any).emails[0].value
-    };
-    io.in(req.session.socketId).emit("facebook", user);
+    /* reason for sockets: with a popup window, general redirects
+    won't work. The client app is also not directly sending the api
+    request, so it cannot receive a normal http response here. */
+    const socket = req.app.get("socket");
+    if (req.session.passport.user) {
+      req.session.user = req.session.passport.user;
+      socket.tn(req.session.socketId).emit("facebook", {
+        message: "성공적으로 페이스북 로그인이 되었습니다."
+      });
+    } else {
+      socket.to(req.session.socketId).emit("facebook", {
+        error: {
+          type: "DuplicateEmail",
+          message: "서로모임에 이미 가입된 이메일입니다."
+        }
+      });
+    }
   }
 );
 
