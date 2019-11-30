@@ -1,4 +1,5 @@
 import User from "../models/User";
+import bcrypt from "bcrypt";
 
 interface IQuery {
   resetPasswordToken: string;
@@ -34,7 +35,10 @@ const userService = {
     }
   },
 
-  patchUser: async (id: string, body: object) => {
+  patchUser: async (id: string, body: any) => {
+    if (body.password) {
+      body.password = await bcrypt.hash(body.password, 10);
+    }
     await User.findByIdAndUpdate(id, body);
     return await User.findById(id)
       .populate({
