@@ -1,9 +1,12 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import socket from "socket.io";
 import mongoose from "mongoose";
 import morgan from "morgan";
 import passport from "passport";
+import passportInitialize from "./src/config/passport";
+import { Server } from "http";
 import session from "express-session";
 import AppRouter from "./src/controllers";
 
@@ -43,12 +46,15 @@ app.use(
   })
 );
 app.use(passport.initialize()); // passport를 app의 미들웨어로 설정
+passportInitialize();
 app.use(AppRouter);
 
+let server: Server;
 if (process.env.NODE_ENV !== "test") {
-  app.listen(process.env.PORT, (): void => {
+  server = app.listen(process.env.PORT, (): void => {
     console.log("Listening on port 5000");
   });
+  app.set("io", socket(server));
 }
 
 export default app; // for testing
