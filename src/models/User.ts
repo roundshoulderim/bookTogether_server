@@ -3,10 +3,11 @@ const Schema: any = mongoose.Schema;
 
 export const UserSchema: mongoose.Schema = new Schema(
   {
+    accountType: { type: String, default: "standard" },
     email: { type: String, unique: true },
     image: { type: String, default: null },
     name: String,
-    password: String,
+    password: { type: String, default: null },
     profile: { type: String, default: "" },
     to_read: [{ book: { type: Schema.Types.ObjectId, ref: "Book" } }],
     reading: [

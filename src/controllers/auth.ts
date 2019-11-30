@@ -1,7 +1,8 @@
-import express, { Request, Response } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import authService from "../services/authService";
 import InvalidBody from "../helpers/errors/invalidBody";
 import InternalError from "../helpers/errors/internalError";
+import passport from "passport";
 
 const authRouter: express.Router = express.Router();
 
@@ -87,5 +88,44 @@ authRouter.post("/checkpw", async (req: Request, res: Response) => {
     }
   }
 });
+
+const addSocketIdToSession = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  req.session.socketId = req.query.socketId;
+  next();
+};
+
+authRouter.get(
+  "/facebook",
+  addSocketIdToSession,
+  passport.authenticate("facebook")
+);
+
+authRouter.get(
+  "/facebook/callback",
+  passport.authenticate("facebook"), // No optional redirect parameter
+  (req: Request) => {
+    /* reason for socket: w/ popup window, general redirects won't work (and would
+    cause undesirable browser reload even if it did). The SPA is also not directly
+    sending the api request, so it cannot receive an http response here. */
+    const socket = req.app.get("socket");
+    if (req.session.passport.user) {
+      req.session.user = req.session.passport.user;
+      socket.to(req.session.socketId).emit("facebook", {
+        message: "성공적으로 페이스북 로그인이 되었습니다."
+      });
+    } else {
+      socket.to(req.session.socketId).emit("facebook", {
+        error: {
+          type: "DuplicateEmail",
+          message: "서로모임에 이미 가입된 이메일입니다."
+        }
+      });
+    }
+  }
+);
 
 export default authRouter;
