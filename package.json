@@ -22,7 +22,6 @@
   "homepage": "https://github.com/achung3071/BCHA-server#readme",
   "dependencies": {
     "@elastic/elasticsearch": "^7.4.0",
-    "@types/passport-facebook": "^2.1.9",
     "aws-sdk": "^2.578.0",
     "axios": "^0.19.0",
     "bcrypt": "^3.0.6",
@@ -59,6 +58,7 @@
     "@types/nodemailer": "^6.2.2",
     "@types/node-schedule": "^1.2.4",
     "@types/passport": "^1.0.1",
+    "@types/passport-facebook": "^2.1.9",
     "@types/puppeteer": "^1.20.2",
     "@types/socket.io": "^2.1.4",
     "@types/supertest": "^2.0.8",
