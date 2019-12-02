@@ -1,12 +1,12 @@
 import dotenv from "dotenv";
 import passport from "passport";
-import facebook from "passport-facebook";
+import { Strategy as FacebookStrategy } from "passport-facebook";
+import { Strategy as KakaoStrategy } from "passport-kakao";
 import User from "../models/User";
 dotenv.config();
 
 export default () => {
-  const FacebookStrategy = facebook.Strategy;
-  const credentials = {
+  const fbCredentials = {
     clientID: process.env.FACEBOOK_ID,
     clientSecret: process.env.FACEBOOK_SECRET,
     callbackURL: "/auth/facebook/callback",
@@ -14,43 +14,45 @@ export default () => {
     profileFields: ["id", "displayName", "photos", "email"]
   };
 
+  const kakaoCredentials = {
+    clientID: process.env.KAKAO_API_KEY,
+    clientSecret: process.env.KAKAO_SECRET,
+    callbackURL: "/auth/kakao/callback"
+  };
+
   // Passport receives user profile info after redirect to callbackURL
-  const callback = async (
+  const callback = (provider: string) => async (
     accessToken: string,
     refreshToken: string,
     profile: any,
     done: any
   ) => {
-    const email = profile.emails[0].value;
+    const email =
+      provider === "kakao"
+        ? profile._json.kakao_account.email
+        : profile.emails[0].value;
     let user: any = await User.findOne({ email });
     if (!user) {
-      // User does not exist
       user = new User({
-        accountType: "facebook",
+        accountType: provider,
         email,
-        image: profile.photos[0].value,
         name: profile.displayName
       });
       await user.save();
-      done(null, user); // user obj is passed to serializeUser
-    } else if (!(user.accountType === "facebook")) {
-      // User registered with something other than fb
-      done(null, null);
-    } else {
-      done(null, user);
     }
+    done(null, user); // passed to serializeUser, or authenticate() if { session: false }
   };
-  passport.use(new FacebookStrategy(credentials, callback));
+  passport.use(new FacebookStrategy(fbCredentials, callback("facebook")));
+  passport.use(new KakaoStrategy(kakaoCredentials, callback("kakao")));
 
+  /* Note: these are not necessary b/c we set session.user manually anyways.
   // serializeUser: write id to req.session.passport.user after authentication
   passport.serializeUser((user: any, done: any) => {
-    done(null, user.id);
-  });
-
-  /* On subsequent HTTP requests, if req.session.passport.user (id) exists,
-  deserializeUser attaches the relevant user data to req as req.user. */
-  passport.deserializeUser(async (id: string, done: any) => {
-    const user = await User.findById(id);
     done(null, user);
   });
+  // On subsequent HTTP requests, if req.session.passport.user exists,
+  // deserializeUser attaches the relevant user data to req as req.user.
+  passport.deserializeUser((user: string, done: any) => {
+    done(null, user);
+  }); */
 };
