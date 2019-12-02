@@ -1,12 +1,17 @@
 import { Request, Response, NextFunction } from "express";
+import InvalidQuery from "../errors/invalidQuery";
 
 export const addSocketIdToSession = (
   req: Request,
   res: Response,
   next: NextFunction
 ): void => {
-  req.session.socketId = req.query.socketId;
-  next();
+  if (!req.query.socketId) {
+    res.status(400).send(InvalidQuery);
+  } else {
+    req.session.socketId = req.query.socketId;
+    next();
+  }
 };
 
 export const oAuthResponse = (provider: string) => (req: Request) => {
