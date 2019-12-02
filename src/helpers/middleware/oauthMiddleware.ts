@@ -17,7 +17,16 @@ export const addSocketIdToSession = (
 export const oAuthResponse = (provider: string) => (req: Request) => {
   const user: any = req.user;
   const socket = req.app.get("socket");
-  if (user.accountType !== provider) {
+  if (!user) {
+    console.log("Socket", req.session.socketId, "Internal Error");
+    socket.to(req.session.socketId).emit(provider, {
+      error: {
+        type: "InternalError",
+        message: "요청을 처리하는 중 서버에 에러가 발생했습니다."
+      }
+    });
+  } else if (user.accountType !== provider) {
+    console.log("Socket", req.session.socketId, "DuplicateEmail");
     socket.to(req.session.socketId).emit(provider, {
       error: {
         type: "DuplicateEmail",
@@ -27,6 +36,7 @@ export const oAuthResponse = (provider: string) => (req: Request) => {
   } else {
     req.session.user = user.id;
     req.session.save(() => {
+      console.log("Socket", req.session.socketId, "Successful");
       socket.to(req.session.socketId).emit(provider, {
         message: "성공적으로 소셜 로그인이 되었습니다."
       }); // without res.send(), need to manually save session.

@@ -27,20 +27,24 @@ export default () => {
     profile: any,
     done: any
   ) => {
-    const email =
-      provider === "kakao"
-        ? profile._json.kakao_account.email
-        : profile.emails[0].value;
-    let user: any = await User.findOne({ email });
-    if (!user) {
-      user = new User({
-        accountType: provider,
-        email,
-        name: profile.displayName
-      });
-      await user.save();
+    try {
+      const email =
+        provider === "kakao"
+          ? profile._json.kakao_account.email
+          : profile.emails[0].value;
+      let user: any = await User.findOne({ email });
+      if (!user) {
+        user = new User({
+          accountType: provider,
+          email,
+          name: profile.displayName
+        });
+        await user.save();
+      }
+      done(null, user); // passed to serializeUser, or authenticate() if { session: false }
+    } catch (error) {
+      done(null, false);
     }
-    done(null, user); // passed to serializeUser, or authenticate() if { session: false }
   };
   passport.use(new FacebookStrategy(fbCredentials, callback("facebook")));
   passport.use(new KakaoStrategy(kakaoCredentials, callback("kakao")));
