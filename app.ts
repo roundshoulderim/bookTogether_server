@@ -46,7 +46,7 @@ app.use(
   })
 );
 app.use(passport.initialize()); // passport를 app의 미들웨어로 설정
-app.use(passport.session()); // http요청 시, 세션 유저 deserialization을 위한 미들웨어
+// app.use(passport.session()); // 요청 시 deserialization에 사용 ({session: false}일 때 불필요)
 passportInitialize();
 app.use(AppRouter);
 
