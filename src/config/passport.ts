@@ -9,7 +9,7 @@ export default () => {
   const fbCredentials = {
     clientID: process.env.FACEBOOK_ID,
     clientSecret: process.env.FACEBOOK_SECRET,
-    callbackURL: "/auth/facebook/callback",
+    callbackURL: `${process.env.SERVER_URL}/auth/facebook/callback`,
     enableProof: true, // Require app secret for API reqs
     profileFields: ["id", "displayName", "photos", "email"]
   };
@@ -17,7 +17,7 @@ export default () => {
   const kakaoCredentials = {
     clientID: process.env.KAKAO_API_KEY,
     clientSecret: process.env.KAKAO_SECRET,
-    callbackURL: "/auth/kakao/callback"
+    callbackURL: `${process.env.SERVER_URL}/auth/kakao/callback`
   };
 
   // Passport receives user profile info after redirect to callbackURL
