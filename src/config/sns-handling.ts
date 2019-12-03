@@ -24,14 +24,14 @@ const complaintsTopicParams = {
 
 sns.subscribe(bouncesTopicParams, (error, data) => {
   if (error) {
-    throw new Error(`SNS subscription failed: ${JSON.stringify(error)}`);
+    console.log(`SNS subscription failed: ${JSON.stringify(error)}`);
   }
   console.log(`SNS subscription configured: ${JSON.stringify(data)}`);
 });
 
 sns.subscribe(complaintsTopicParams, (error, data) => {
   if (error) {
-    throw new Error(`SNS subscription failed: ${JSON.stringify(error)}`);
+    console.log(`SNS subscription failed: ${JSON.stringify(error)}`);
   }
   console.log(`SNS subscription configured: ${JSON.stringify(data)}`);
 });
@@ -54,7 +54,7 @@ const handleSnsNotification = async (req: Request, res: Response) => {
           }
         }
       } catch (error) {
-        console.error(error.message);
+        console.log(error.message);
       }
     }
   }
@@ -75,7 +75,7 @@ const handleSNSResponse = async (
     };
     sns.confirmSubscription(params, (error, data) => {
       if (error) {
-        throw new Error(`Subscription confirm error: ${JSON.stringify(error)}`);
+        console.log(`Subscription confirm error: ${JSON.stringify(error)}`);
       }
       console.log(`Subscription confirmed: ${JSON.stringify(data)}`);
     });
