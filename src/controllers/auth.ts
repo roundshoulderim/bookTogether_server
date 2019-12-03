@@ -118,12 +118,12 @@ authRouter.post("/checkpw", async (req: Request, res: Response) => {
 authRouter.get(
   "/facebook",
   addSocketIdToSession,
-  passport.authenticate("facebook")
+  passport.authenticate("facebook", { scope: ["email"] })
 );
 
 authRouter.get(
   "/facebook/callback",
-  passport.authenticate("facebook", { session: false, scope: ["email"] }), // no serializeUser
+  passport.authenticate("facebook", { session: false }), // no serializeUser
   oAuthResponse("facebook")
 );
 

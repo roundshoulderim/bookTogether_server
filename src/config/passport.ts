@@ -11,7 +11,7 @@ export default () => {
     clientID: process.env.FACEBOOK_ID,
     clientSecret: process.env.FACEBOOK_SECRET,
     callbackURL: `${process.env.SERVER_URL}/auth/facebook/callback`,
-    profileFields: ["id", "displayName", "emails"]
+    profileFields: ["id", "displayName", "email"]
   };
 
   const kakaoCredentials = {
@@ -49,31 +49,7 @@ export default () => {
     }
   };
 
-  const facebookHandler = (
-    token: string,
-    tokenSecret: string,
-    profile: object,
-    done: any
-  ) => {
-    console.log("TOKEN", token);
-    const url = `https://graph.facebook.com/me?fields=id,email,name&access_token=${token}`;
-
-    axios
-      .get(url, { responseType: "json" })
-      .then(res => {
-        return res.data;
-      })
-      .then(res => {
-        console.log("DATA", res);
-        done(null, { error: res });
-      })
-      .catch(error => {
-        console.log("ERROR", error.message);
-        done(null, { error });
-      });
-  };
-
-  passport.use(new FacebookStrategy(fbCredentials, facebookHandler));
+  passport.use(new FacebookStrategy(fbCredentials, callback("facebook")));
   passport.use(new KakaoStrategy(kakaoCredentials, callback("kakao")));
 
   /* Note: these are not necessary b/c we set session.user manually anyways.
