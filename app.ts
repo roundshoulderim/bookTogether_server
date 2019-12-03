@@ -8,6 +8,7 @@ import passport from "passport";
 import passportInitialize from "./src/config/passport";
 import { Server } from "http";
 import session from "express-session";
+import SNSMessageToJSON from "./src/helpers/middleware/snsMiddleware";
 import AppRouter from "./src/controllers";
 
 dotenv.config();
@@ -37,6 +38,7 @@ app.use(
     credentials: true
   })
 );
+app.use(SNSMessageToJSON);
 app.use(express.json());
 app.use(
   session({
