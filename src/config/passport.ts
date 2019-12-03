@@ -55,20 +55,23 @@ export default () => {
     profile: object,
     done: any
   ) => {
-    process.nextTick(() => {
-      let url =
-        "https://graph.facebook.com/v2.10/me?access_token=%s&fields=id,email,displayName";
-      url = url.replace("%s", token);
+    console.log("TOKEN", token);
+    const url = `https://graph.facebook.com/me?fields=id,email,name&access_token=${token}`;
 
-      axios
-        .get(url)
-        .then(res => res.data)
-        .then(res => {
-          console.log(res);
-          done(null, { error: res });
-        })
-        .catch(error => done(null, { error }));
-    });
+    axios
+      .get(url)
+      .then(res => {
+        console.log("RESPONSE", JSON.stringify(res));
+        return res.data;
+      })
+      .then(res => {
+        console.log("DATA", res);
+        done(null, { error: res });
+      })
+      .catch(error => {
+        console.log("ERROR", JSON.stringify(error));
+        done(null, { error });
+      });
   };
 
   passport.use(new FacebookStrategy(fbCredentials, facebookHandler));
