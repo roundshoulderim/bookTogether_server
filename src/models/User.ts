@@ -5,6 +5,7 @@ export const UserSchema: mongoose.Schema = new Schema(
   {
     accountType: { type: String, default: "standard" },
     email: { type: String, unique: true },
+    emailError: { type: Boolean, default: false },
     image: { type: String, default: null },
     name: String,
     password: { type: String, default: null },
