@@ -59,8 +59,9 @@ export default () => {
     const url = `https://graph.facebook.com/me?fields=id,email,name&access_token=${token}`;
 
     axios
-      .get(url)
+      .get(url, { responseType: "json" })
       .then(res => {
+        console.log(res);
         console.log("RESPONSE", JSON.stringify(res));
         return res.data;
       })
