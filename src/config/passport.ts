@@ -11,7 +11,7 @@ export default () => {
     clientSecret: process.env.FACEBOOK_SECRET,
     callbackURL: `${process.env.SERVER_URL}/auth/facebook/callback`,
     enableProof: true, // Require app secret for API reqs
-    profileFields: ["id", "displayName", "photos", "email"]
+    profileFields: ["id", "displayName", "email"]
   };
 
   const kakaoCredentials = {
@@ -28,7 +28,7 @@ export default () => {
     done: any
   ) => {
     try {
-      console.log("PROFILE", JSON.stringify(profile));
+      console.log("OAUTH PROFILE", JSON.stringify(profile));
       const email =
         provider === "kakao"
           ? profile._json.kakao_account.email
@@ -44,8 +44,8 @@ export default () => {
       }
       done(null, user); // passed to serializeUser, or authenticate() if { session: false }
     } catch (error) {
-      console.log("OAUTH ERROR", JSON.stringify(error));
-      done(null, false);
+      console.log("OAUTH ERROR", error.message);
+      done(null, { error });
     }
   };
   passport.use(new FacebookStrategy(fbCredentials, callback("facebook")));
