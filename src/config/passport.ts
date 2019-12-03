@@ -3,6 +3,7 @@ import passport from "passport";
 import { Strategy as FacebookStrategy } from "passport-facebook";
 import { Strategy as KakaoStrategy } from "passport-kakao";
 import User from "../models/User";
+import axios from "axios";
 dotenv.config();
 
 export default () => {
@@ -47,7 +48,30 @@ export default () => {
       done(null, { error });
     }
   };
-  passport.use(new FacebookStrategy(fbCredentials, callback("facebook")));
+
+  const facebookHandler = (
+    token: string,
+    tokenSecret: string,
+    profile: object,
+    done: any
+  ) => {
+    process.nextTick(() => {
+      let url =
+        "https://graph.facebook.com/v2.10/me?access_token=%s&fields=id,email,displayName";
+      url = url.replace("%s", token);
+
+      axios
+        .get(url)
+        .then(res => res.data)
+        .then(res => {
+          console.log(res);
+          done(null, { error: res });
+        })
+        .catch(error => done(null, { error }));
+    });
+  };
+
+  passport.use(new FacebookStrategy(fbCredentials, facebookHandler));
   passport.use(new KakaoStrategy(kakaoCredentials, callback("kakao")));
 
   /* Note: these are not necessary b/c we set session.user manually anyways.
