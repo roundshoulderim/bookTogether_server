@@ -28,6 +28,7 @@ export default () => {
     done: any
   ) => {
     try {
+      console.log("PROFILE", JSON.stringify(profile));
       const email =
         provider === "kakao"
           ? profile._json.kakao_account.email
@@ -43,6 +44,7 @@ export default () => {
       }
       done(null, user); // passed to serializeUser, or authenticate() if { session: false }
     } catch (error) {
+      console.log("OAUTH ERROR", JSON.stringify(error));
       done(null, false);
     }
   };

@@ -20,6 +20,7 @@ export const oAuthResponse = (provider: string) => (
 ) => {
   const user: any = req.user;
   const socket = req.app.get("socket");
+  console.log("OAuth user from DB", user);
   if (!user) {
     console.log("Socket", req.session.socketId, "Internal Error");
     socket.to(req.session.socketId).emit(provider, {
@@ -41,7 +42,7 @@ export const oAuthResponse = (provider: string) => (
   } else {
     req.session.user = user.id;
     req.session.save(() => {
-      console.log("Socket", req.session.socketId, "Successful");
+      console.log("Socket", req.session.socketId, "Successful Login");
       socket.to(req.session.socketId).emit(provider, {
         message: "성공적으로 소셜 로그인이 되었습니다."
       }); // without res.send(), need to manually save session.
