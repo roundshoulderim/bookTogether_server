@@ -10,8 +10,8 @@ export default () => {
     clientID: process.env.FACEBOOK_ID,
     clientSecret: process.env.FACEBOOK_SECRET,
     callbackURL: `${process.env.SERVER_URL}/auth/facebook/callback`,
-    enableProof: true, // Require app secret for API reqs
-    profileFields: ["id", "displayName", "email"]
+    passReqToCallback: true,
+    profileFields: ["id", "displayName", "emails"]
   };
 
   const kakaoCredentials = {
