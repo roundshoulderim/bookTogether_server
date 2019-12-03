@@ -1,13 +1,15 @@
 import express, { Request, Response, NextFunction } from "express";
 import authService from "../services/authService";
+import handleSNSResponse from "../config/sns-handling";
 import InvalidBody from "../helpers/errors/invalidBody";
 import InternalError from "../helpers/errors/internalError";
 import passport from "passport";
+import dotenv from "dotenv";
 import {
   addSocketIdToSession,
   oAuthResponse
 } from "../helpers/middleware/oauthMiddleware";
-
+dotenv.config();
 const authRouter: express.Router = express.Router();
 
 // POST /signup
@@ -73,6 +75,25 @@ authRouter.post("/findpw", async (req: Request, res: Response) => {
     } else {
       res.status(500).send(InternalError);
     }
+  }
+});
+
+// POST /findpw-bounces, /findpw-complaints
+authRouter.post("/findpw-bounces", async (req: Request, res: Response) => {
+  try {
+    await handleSNSResponse(process.env.BOUNCES_TOPIC_ARN, req, res);
+    res.sendStatus(200);
+  } catch (error) {
+    res.sendStatus(500);
+  }
+});
+
+authRouter.post("/findpw-complaints", async (req: Request, res: Response) => {
+  try {
+    await handleSNSResponse(process.env.COMPLAINTS_TOPIC_ARN, req, res);
+    res.sendStatus(200);
+  } catch (error) {
+    res.sendStatus(500);
   }
 });
 
