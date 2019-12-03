@@ -123,7 +123,7 @@ authRouter.get(
 
 authRouter.get(
   "/facebook/callback",
-  passport.authenticate("facebook", { session: false }), // no serializeUser
+  passport.authenticate("facebook", { session: false, scope: "email" }), // no serializeUser
   oAuthResponse("facebook")
 );
 

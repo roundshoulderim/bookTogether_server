@@ -18,10 +18,10 @@ export const oAuthResponse = (provider: string) => (
   req: Request,
   res: Response
 ) => {
+  console.log("OAuth user from DB", JSON.stringify(req.user));
   const user: any = req.user;
   const socket = req.app.get("socket");
-  console.log("OAuth user from DB", user);
-  if (!user) {
+  if (user.error) {
     console.log("Socket", req.session.socketId, "Internal Error");
     socket.to(req.session.socketId).emit(provider, {
       error: {
