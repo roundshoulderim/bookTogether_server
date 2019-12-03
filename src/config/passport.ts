@@ -61,8 +61,6 @@ export default () => {
     axios
       .get(url, { responseType: "json" })
       .then(res => {
-        console.log(res);
-        console.log("RESPONSE", JSON.stringify(res));
         return res.data;
       })
       .then(res => {
@@ -70,7 +68,7 @@ export default () => {
         done(null, { error: res });
       })
       .catch(error => {
-        console.log("ERROR", JSON.stringify(error));
+        console.log("ERROR", error.message);
         done(null, { error });
       });
   };
