@@ -14,6 +14,7 @@ interface IReview extends Document {
 }
 
 export default async () => {
+  console.log("MIGRATING REVIEWS TO ELASTICSEARCH:::");
   try {
     const reviews = await Review.find({});
     for (let i = 0; i < reviews.length; i += 3500) {

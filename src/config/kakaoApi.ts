@@ -85,6 +85,7 @@ async function searchApi(publisher: string, page: number): Promise<void> {
 
 // Connect to database and fetch / save books
 const kakaoApiToDB = async () => {
+  console.log("MIGRATING KAKAO BOOKS TO DB:::");
   const publishers: string[] = [
     "위즈덤하우스",
     "시공사",

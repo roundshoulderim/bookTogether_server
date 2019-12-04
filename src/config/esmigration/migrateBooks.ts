@@ -10,6 +10,7 @@ interface IBook extends Document {
 }
 
 export default async () => {
+  console.log("MIGRATING BOOKS TO ELASTICSEARCH:::");
   try {
     const books = await Book.find({});
     for (let i = 0; i < books.length; i += 3500) {
