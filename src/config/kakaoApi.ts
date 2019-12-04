@@ -44,10 +44,24 @@ async function searchApi(publisher: string, page: number): Promise<void> {
     const books = data.documents;
 
     for (const entry of books) {
-      const title: string = entry.title;
-      const avoidWords = ["찬송가", "성경", "세트", "샘플", "ebook", "sample"];
-      if (avoidWords.some(word => title.toLowerCase().includes(word))) {
+      const avoidWords = [
+        "찬송가",
+        "성경",
+        "세트",
+        "샘플",
+        "컬러링북",
+        "ebook",
+        "epub",
+        "sample"
+      ];
+      if (avoidWords.some(word => entry.title.toLowerCase().includes(word))) {
         continue;
+      } else {
+        const { title, authors } = entry;
+        const match = await Book.findOne({ title, authors });
+        if (match && match.isbn !== entry.isbn) {
+          continue; // If it is a different version of the same book, continue
+        }
       }
       const browser = await puppeteer.launch();
       const browserPage = await browser.newPage();
@@ -71,7 +85,7 @@ async function searchApi(publisher: string, page: number): Promise<void> {
         await Book.findByIdAndUpdate(existing.id, entry);
       } else {
         const book: Document = new Book(entry);
-        book.save();
+        await book.save();
       }
     }
 
