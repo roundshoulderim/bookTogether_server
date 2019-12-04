@@ -29,15 +29,6 @@ export const oAuthResponse = (provider: string) => (
       }
     });
     res.sendStatus(500);
-  } else if (user.accountType !== provider) {
-    console.log("Socket", req.session.socketId, "DuplicateEmail");
-    socket.to(req.session.socketId).emit(provider, {
-      error: {
-        type: "DuplicateEmail",
-        message: "서로모임에 이미 가입된 이메일입니다."
-      }
-    });
-    res.sendStatus(401);
   } else {
     req.session.user = user.id;
     req.session.save(() => {

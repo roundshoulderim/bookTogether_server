@@ -28,23 +28,24 @@ export default () => {
     done: any
   ) => {
     try {
-      console.log("OAUTH PROFILE", JSON.stringify(profile));
       const email =
         provider === "kakao"
           ? profile._json.kakao_account.email
           : profile.emails[0].value;
-      let user: any = await User.findOne({ email });
+      let user: any = await User.findOne({ oauthId: profile.id, email });
       if (!user) {
         user = new User({
           accountType: provider,
           email,
-          name: profile.displayName
+          name: profile.displayName,
+          oauthId: profile.id
         });
         await user.save();
       }
       done(null, user); // passed to serializeUser, or authenticate() if { session: false }
     } catch (error) {
-      console.log("OAUTH ERROR", error.message);
+      console.log("OAUTH ERROR FOR:", JSON.stringify(profile));
+      console.log("ERROR DESC:", error.message);
       done(null, { error });
     }
   };

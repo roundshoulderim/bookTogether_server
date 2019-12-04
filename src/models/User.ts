@@ -8,6 +8,7 @@ export const UserSchema: mongoose.Schema = new Schema(
     emailError: { type: Boolean, default: false },
     image: { type: String, default: null },
     name: String,
+    oauthId: { type: String, default: null },
     password: { type: String, default: null },
     profile: { type: String, default: "" },
     to_read: [{ book: { type: Schema.Types.ObjectId, ref: "Book" } }],
