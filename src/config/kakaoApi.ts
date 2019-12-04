@@ -54,11 +54,14 @@ async function searchApi(publisher: string, page: number): Promise<void> {
         "epub",
         "sample"
       ];
-      if (
-        avoidWords.some(word => entry.title.toLowerCase().includes(word)) ||
-        (await Book.findOne({ title: entry.title, authors: entry.authors }))
-      ) {
+      if (avoidWords.some(word => entry.title.toLowerCase().includes(word))) {
         continue;
+      } else {
+        const { title, authors } = entry;
+        const match = await Book.findOne({ title, authors });
+        if (match && match.isbn !== entry.isbn) {
+          continue; // If it is a different version of the same book, continue
+        }
       }
       const browser = await puppeteer.launch();
       const browserPage = await browser.newPage();
