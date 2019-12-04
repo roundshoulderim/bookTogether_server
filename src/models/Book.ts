@@ -39,6 +39,9 @@ BookSchema.pre("save", async function(next: HookNextFunction): Promise<void> {
   await esIndexBook(this);
   next();
 });
+BookSchema.post("findOneAndDelete", doc => {
+  client.delete({ id: doc.id, index: "books", refresh: "true" });
+});
 
 // Return paginated search results from ElasticSearch
 BookSchema.statics.search = async ({ query, page, size }: ISearchQuery) => {
