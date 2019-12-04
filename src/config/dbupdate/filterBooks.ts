@@ -33,7 +33,7 @@ mongoose
         const { title, authors } = book;
         const identicalBooks: IBook[] = await Book.find({ title, authors });
         if (identicalBooks.length > 1) {
-          // needed b/c all books might be deleted simultaneously if operation is async
+          // await needed b/c books might be deleted simultaneously if operation is async
           await Book.findByIdAndDelete(book.id);
         }
       }
