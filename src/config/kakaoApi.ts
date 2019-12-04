@@ -44,9 +44,20 @@ async function searchApi(publisher: string, page: number): Promise<void> {
     const books = data.documents;
 
     for (const entry of books) {
-      const title: string = entry.title;
-      const avoidWords = ["찬송가", "성경", "세트", "샘플", "ebook", "sample"];
-      if (avoidWords.some(word => title.toLowerCase().includes(word))) {
+      const avoidWords = [
+        "찬송가",
+        "성경",
+        "세트",
+        "샘플",
+        "컬러링북",
+        "ebook",
+        "epub",
+        "sample"
+      ];
+      if (
+        avoidWords.some(word => entry.title.toLowerCase().includes(word)) ||
+        (await Book.findOne({ title: entry.title, authors: entry.authors }))
+      ) {
         continue;
       }
       const browser = await puppeteer.launch();
@@ -71,7 +82,7 @@ async function searchApi(publisher: string, page: number): Promise<void> {
         await Book.findByIdAndUpdate(existing.id, entry);
       } else {
         const book: Document = new Book(entry);
-        book.save();
+        await book.save();
       }
     }
 
