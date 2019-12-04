@@ -50,6 +50,7 @@ ReviewSchema.statics.search = async ({ query, page, size }: ISearchQuery) => {
     body: {
       query: {
         bool: {
+          must: [{ term: { published: true } }],
           should: [
             {
               nested: {
