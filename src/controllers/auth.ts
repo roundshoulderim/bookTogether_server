@@ -70,8 +70,8 @@ authRouter.post("/findpw", async (req: Request, res: Response) => {
     await authService.findpw(req.body.email);
     res.status(200).send({ message: "비밀번호 재설정 메일이 전송되었습니다." });
   } catch (error) {
-    if (error.type === "EmailNotFound") {
-      res.status(404).send({ error });
+    if (error.type) {
+      res.status(error.status).send({ error });
     } else {
       res.status(500).send(InternalError);
     }

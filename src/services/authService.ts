@@ -52,12 +52,25 @@ const authService: IAuthService = {
   },
 
   findpw: async (email: string): Promise<object> => {
-    const user = await User.findOne({ email });
+    const user: any = await User.findOne({ email });
     if (!user) {
       return Promise.reject({
         status: 404,
         type: "EmailNotFound",
         message: "입력하신 이메일로 가입되어 있는 계정이 없습니다."
+      });
+    } else if (user.accountType !== "standard") {
+      return Promise.reject({
+        status: 403,
+        type: "OAuthEmail",
+        message: "소셜 로그인(OAuth)로 가입된 계정입니다."
+      });
+    } else if (user.emailError) {
+      return Promise.reject({
+        status: 403,
+        type: "EmailError",
+        message:
+          "해당 이메일의 차단 또는 스팸 설정으로 인해 재설정 링크를 보낼 수 없습니다."
       });
     }
     const token = crypto.randomBytes(20).toString("hex");
