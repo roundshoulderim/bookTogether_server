@@ -4,8 +4,9 @@ import migrateBooks from "./esmigration/migrateBooks";
 import migrateReviews from "./esmigration/migrateReviews";
 
 const scheduleMigrations = () => {
-  schedule.scheduleJob({ hour: 3, minute: 0, dayOfWeek: 0 }, kakaoApiToDB);
+  schedule.scheduleJob({ hour: 3, minute: 0, dayOfWeek: 0 }, kakaoApiToDB); // Sunday 3AM
   schedule.scheduleJob({ hour: 3, minute: 0, dayOfWeek: 3 }, () => {
+    // Wednesday 3AM
     migrateBooks();
     migrateReviews();
   });
