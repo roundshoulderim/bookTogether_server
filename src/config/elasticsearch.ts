@@ -66,7 +66,8 @@ const reviewsBody = {
       title: {
         type: "text",
         analyzer: "autocomplete"
-      }
+      },
+      published: { type: "boolean" }
     }
   }
 };
