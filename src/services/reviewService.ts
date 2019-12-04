@@ -42,8 +42,8 @@ const reviewService = {
 
     if (list_type) {
       if (list_type === "recommended") {
-        // Get 20 reviews with most likes
-        const allReviews = await findMatchingReviews({});
+        // Get 20 reviews with most likes (that are published)
+        const allReviews = await findMatchingReviews({ published: true });
         allReviews.sort((a: any, b: any) => b.likes.length - a.likes.length);
         reviews = updateQueryResults(reviews, allReviews.slice(0, 20));
       } else if (list_type === "my_likes") {
@@ -61,10 +61,10 @@ const reviewService = {
       );
     }
     if (book) {
-      // Get all reviews about a specific book
+      // Get all reviews about a specific book (published)
       reviews = updateQueryResults(
         reviews,
-        await findMatchingReviews({ books: book })
+        await findMatchingReviews({ books: book, published: true })
       );
     }
     if (curation) {
