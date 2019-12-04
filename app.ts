@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import morgan from "morgan";
 import passport from "passport";
 import passportInitialize from "./src/config/passport";
+import scheduleMigrations from "./src/config/scheduler";
 import { Server } from "http";
 import session from "express-session";
 import SNSMessageToJSON from "./src/helpers/middleware/snsMiddleware";
@@ -17,10 +18,12 @@ const dbUrl: string =
   process.env.NODE_ENV === "test"
     ? process.env.TEST_DB_URL
     : process.env.DB_URL;
-mongoose.connect(dbUrl, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
+mongoose
+  .connect(dbUrl, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(scheduleMigrations);
 
 const app: express.Application = express();
 
