@@ -71,7 +71,8 @@ ReviewSchema.statics.search = async ({ query, page, size }: ISearchQuery) => {
               }
             },
             { match: { title: { query, analyzer: "standard", boost: 2 } } }
-          ]
+          ],
+          minimum_should_match: 1
         }
       }
     }
