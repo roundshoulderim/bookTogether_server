@@ -84,7 +84,7 @@ async function searchApi(publisher: string, page: number): Promise<void> {
 }
 
 // Connect to database and fetch / save books
-const kakaoApiToDB = () => {
+const kakaoApiToDB = async () => {
   const publishers: string[] = [
     "위즈덤하우스",
     "시공사",
@@ -109,8 +109,14 @@ const kakaoApiToDB = () => {
     "문학수첩",
     "인플루엔셜"
   ];
-  for (const publisher of publishers) {
-    searchApi(publisher, 1).catch(err => console.log(err.message));
+  // Divide webscraping publishers into batches to prevent CPU overload
+  try {
+    for (let i = 0; i < publishers.length; i += 3) {
+      const batch = publishers.slice(i, i + 3);
+      await Promise.all(batch.map(publisher => searchApi(publisher, 1)));
+    }
+  } catch (error) {
+    console.log("ERROR while calling Kakao API:", error.message);
   }
 };
 
