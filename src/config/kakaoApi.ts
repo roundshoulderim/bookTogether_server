@@ -47,12 +47,9 @@ async function searchApi(publisher: string, page: number): Promise<void> {
     const books = data.documents;
 
     for (const entry of books) {
-      const title = entry.title;
-      if (
-        title.includes("찬송가") ||
-        title.includes("성경") ||
-        title.includes("월호")
-      ) {
+      const title: string = entry.title;
+      const avoidWords = ["찬송가", "성경", "세트", "샘플", "ebook", "sample"];
+      if (avoidWords.some(word => title.toLowerCase().includes(word))) {
         continue;
       }
       const browser = await puppeteer.launch();
@@ -110,15 +107,17 @@ const publishers: string[] = [
   "계림북스",
   "을유문화사",
   "자음과모음",
-  "개암나무"
+  "개암나무",
+  "문학수첩",
+  "인플루엔셜"
 ];
 mongoose
   .connect(process.env.DB_URL, {
     useNewUrlParser: true
   })
-  .then(async () => {
+  .then(() => {
     for (const publisher of publishers) {
-      await searchApi(publisher, 1);
+      searchApi(publisher, 1);
     }
   })
   .catch(err => console.log(err));
