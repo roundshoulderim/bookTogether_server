@@ -1,11 +1,8 @@
 import Book from "../models/Book";
 import axios from "axios";
 import cheerio from "cheerio";
-import schedule from "node-schedule";
-import mongoose, { Document } from "mongoose";
+import { Document } from "mongoose";
 import puppeteer from "puppeteer";
-import dotenv from "dotenv";
-dotenv.config();
 
 const BASE_URL = "https://dapi.kakao.com/v3/search/book";
 
@@ -82,42 +79,46 @@ async function searchApi(publisher: string, page: number): Promise<void> {
       await searchApi(publisher, page + 1);
     }
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
   }
 }
 
-// Connect to database and fetch
-const publishers: string[] = [
-  "위즈덤하우스",
-  "시공사",
-  "문학동네",
-  "김영사",
-  "창비",
-  "웅진씽크빅",
-  "길벗",
-  "민음사",
-  "알에이치코리아",
-  "다산북스",
-  "학지사",
-  "아가페출판사",
-  "비룡소",
-  "한빛미디어",
-  "박영사",
-  "쌤앤파커스",
-  "계림북스",
-  "을유문화사",
-  "자음과모음",
-  "개암나무",
-  "문학수첩",
-  "인플루엔셜"
-];
-mongoose
-  .connect(process.env.DB_URL, {
-    useNewUrlParser: true
-  })
-  .then(() => {
-    for (const publisher of publishers) {
-      searchApi(publisher, 1);
+// Connect to database and fetch / save books
+const kakaoApiToDB = async () => {
+  console.log("MIGRATING KAKAO BOOKS TO DB:::");
+  const publishers: string[] = [
+    "위즈덤하우스",
+    "시공사",
+    "문학동네",
+    "김영사",
+    "창비",
+    "웅진씽크빅",
+    "길벗",
+    "민음사",
+    "알에이치코리아",
+    "다산북스",
+    "학지사",
+    "아가페출판사",
+    "비룡소",
+    "한빛미디어",
+    "박영사",
+    "쌤앤파커스",
+    "계림북스",
+    "을유문화사",
+    "자음과모음",
+    "개암나무",
+    "문학수첩",
+    "인플루엔셜"
+  ];
+  // Divide webscraping publishers into batches to prevent CPU overload
+  try {
+    for (let i = 0; i < publishers.length; i += 3) {
+      const batch = publishers.slice(i, i + 3);
+      await Promise.all(batch.map(publisher => searchApi(publisher, 1)));
     }
-  })
-  .catch(err => console.log(err));
+  } catch (error) {
+    console.log("ERROR while calling Kakao API:", error.message);
+  }
+};
+
+export default kakaoApiToDB;
