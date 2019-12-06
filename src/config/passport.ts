@@ -32,7 +32,10 @@ export default () => {
         provider === "kakao"
           ? profile._json.kakao_account.email
           : profile.emails[0].value;
-      let user: any = await User.findOne({ oauthId: profile.id, email });
+      let user: any = await User.findOne({
+        oauthId: profile.id,
+        accountType: provider
+      });
       if (!user) {
         user = new User({
           accountType: provider,

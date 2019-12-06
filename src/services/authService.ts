@@ -38,7 +38,7 @@ const authService: IAuthService = {
 
   login: async (userInfo: IUserInfo): Promise<object> => {
     const { email, password } = userInfo;
-    const user: any = await User.findOne({ email });
+    const user: any = await User.findOne({ email, accountType: "standard" });
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return {
         error: {
@@ -52,18 +52,12 @@ const authService: IAuthService = {
   },
 
   findpw: async (email: string): Promise<object> => {
-    const user: any = await User.findOne({ email });
+    const user: any = await User.findOne({ email, accountType: "standard" });
     if (!user) {
       return Promise.reject({
         status: 404,
         type: "EmailNotFound",
-        message: "입력하신 이메일로 가입되어 있는 계정이 없습니다."
-      });
-    } else if (user.accountType !== "standard") {
-      return Promise.reject({
-        status: 403,
-        type: "OAuthEmail",
-        message: "소셜 로그인(OAuth)로 가입된 계정입니다."
+        message: "입력하신 이메일로 가입되어 있는 일반 계정이 없습니다."
       });
     } else if (user.emailError) {
       return Promise.reject({
