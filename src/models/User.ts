@@ -4,7 +4,7 @@ const Schema: any = mongoose.Schema;
 export const UserSchema: mongoose.Schema = new Schema(
   {
     accountType: { type: String, default: "standard" },
-    email: { type: String, unique: true },
+    email: String,
     emailError: { type: Boolean, default: false },
     image: { type: String, default: null },
     name: String,
