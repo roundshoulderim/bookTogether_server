@@ -38,7 +38,7 @@ const authService: IAuthService = {
 
   login: async (userInfo: IUserInfo): Promise<object> => {
     const { email, password } = userInfo;
-    const user: any = await User.findOne({ email });
+    const user: any = await User.findOne({ email, accountType: "standard" });
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return {
         error: {
