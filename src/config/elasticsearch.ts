@@ -70,8 +70,8 @@ const reviewsBody = {
 
 (async (): Promise<void> => {
   try {
-    await client.indices.delete({ index: "books" });
-    await client.indices.delete({ index: "reviews" });
+    // await client.indices.delete({ index: "books" });
+    // await client.indices.delete({ index: "reviews" });
     const booksIndex = await client.indices.exists({ index: "books" });
     const reviewsIndex = await client.indices.exists({ index: "reviews" });
     if (!booksIndex.body) {
